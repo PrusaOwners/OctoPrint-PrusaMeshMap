@@ -1,0 +1,4 @@
+include README.md
+recursive-include octoprint_PrusaMeshMap/templates *
+recursive-include octoprint_PrusaMeshMap/translations *
+recursive-include octoprint_PrusaMeshMap/static *
