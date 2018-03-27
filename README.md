@@ -1,5 +1,7 @@
 # OctoPrint-PrusaMeshMap
 
+## This plugin is not yet working, check back later! ##
+
 **TODO:** Describe what your plugin does.
 
 ## Setup
