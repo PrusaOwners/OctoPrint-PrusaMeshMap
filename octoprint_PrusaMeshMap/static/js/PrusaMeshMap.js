@@ -9,10 +9,15 @@ $(function() {
         var self = this;
 
         // assign the injected parameters, e.g.:
-        // self.loginStateViewModel = parameters[0];
-        // self.settingsViewModel = parameters[1];
+        self.loginStateViewModel = parameters[0];
+        self.settingsViewModel = parameters[1];
 
         // TODO: Implement your plugin's view model here.
+        self.sendPrusaBedLevel = function() {
+            levelGcode = self.settingsViewModel.settings.plugins.PrusaMeshMap.do_level_gcode()
+            OctoPrint.control.sendGcode(levelGcode.split("\n"));
+        };
+
     }
 
     /* view model class, parameters for constructor, container to bind to
@@ -22,8 +27,8 @@ $(function() {
     OCTOPRINT_VIEWMODELS.push({
         construct: PrusameshmapViewModel,
         // ViewModels your plugin depends on, e.g. loginStateViewModel, settingsViewModel, ...
-        dependencies: [ /* "loginStateViewModel", "settingsViewModel" */ ],
+        dependencies: [ "loginStateViewModel", "settingsViewModel" ],
         // Elements to bind to, e.g. #settings_plugin_PrusaMeshMap, #tab_plugin_PrusaMeshMap, ...
-        elements: [ /* ... */ ]
+        elements: [ "#settings_plugin_PrusaMeshMap", "#tab_plugin_PrusaMeshMap" ]
     });
 });

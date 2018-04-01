@@ -1,0 +1,19 @@
+<h4>Prusa Mesh Leveling</h4>
+
+<p>
+    Specify the GCODE scripts to perform the mesh bed level operation as well as to check its status after the leveling operation completes.
+</p>
+<form class="form-horizontal">
+    <div class="control-group">
+        <label class="control-label">{{ _('DO_LEVEL_GCODE') }}</label>
+        <div class="controls">
+            <textarea rows="4" class="block" data-bind="value: settingsViewModel.settings.plugins.PrusaMeshMap.do_level_gcode"></textarea>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">{{ _('CHECK_LEVEL_GCODE') }}</label>
+        <div class="controls">
+            <textarea rows="4" class="block" data-bind="value: settingsViewModel.settings.plugins.PrusaMeshMap.check_level_gcode"></textarea>
+        </div>
+    </div>
+</form>

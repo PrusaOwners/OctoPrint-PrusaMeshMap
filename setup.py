@@ -33,7 +33,7 @@ plugin_url = "https://github.com/ff8jake/OctoPrint-PrusaMeshMap"
 plugin_license = "MIT"
 
 # Any additional requirements besides OctoPrint should be listed here
-plugin_requires = []
+plugin_requires = ["matplotlib", "numpy"]
 
 ### --------------------------------------------------------------------------------------------------------------------
 ### More advanced options that you usually shouldn't have to touch follow after this point
