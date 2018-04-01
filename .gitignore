@@ -7,3 +7,4 @@ dist
 *.egg*
 .DS_Store
 *.zip
+octoprint_PrusaMeshMap/static/img/heatmap.png
