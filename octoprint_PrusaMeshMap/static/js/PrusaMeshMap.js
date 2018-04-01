@@ -11,6 +11,7 @@ $(function() {
         // assign the injected parameters, e.g.:
         self.loginStateViewModel = parameters[0];
         self.settingsViewModel = parameters[1];
+        self.controlViewModel = parameters[2];
 
         // TODO: Implement your plugin's view model here.
         self.sendPrusaBedLevel = function() {
@@ -27,7 +28,7 @@ $(function() {
     OCTOPRINT_VIEWMODELS.push({
         construct: PrusameshmapViewModel,
         // ViewModels your plugin depends on, e.g. loginStateViewModel, settingsViewModel, ...
-        dependencies: [ "loginStateViewModel", "settingsViewModel" ],
+        dependencies: [ "loginStateViewModel", "settingsViewModel", "controlViewModel" ],
         // Elements to bind to, e.g. #settings_plugin_PrusaMeshMap, #tab_plugin_PrusaMeshMap, ...
         elements: [ "#settings_plugin_PrusaMeshMap", "#tab_plugin_PrusaMeshMap" ]
     });
