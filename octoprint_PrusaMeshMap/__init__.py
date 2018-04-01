@@ -82,9 +82,10 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         ##~~ GCode Received hook
 
         def mesh_level_check(self, comm, line, *args, **kwargs):
-                if re.match(r"^(  \d+.\d+)+$", line):
+                if re.match(r"^(  -?\d+.\d+)+$", line):
                     self.mesh_level_responses.append(line)
                     self.mesh_level_generate()
+                    self._logger.info("FOUND: " + line)
                     return line
                 else:
                     return line
