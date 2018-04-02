@@ -16,6 +16,10 @@ Clicking "Perform Bed Level and Check" will execute a bed level operation and st
 
 It should be noted that the heatmap image **will not** reload automatically. To reload, click "Reload Heatmap Image" below the heatmap. This is to allow you to be paying attention and see how your new bed level result changes.
 
+## G81 Output Handler
+
+It should be noted that this plugin has a handler that is watching output received from the printer **at all times**. This means you can place a G81 in your slicer's GCode start script and have a new heatmap generated every time you print!
+
 ## Setup
 
 Install via the bundled [Plugin Manager](https://github.com/foosel/OctoPrint/wiki/Plugin:-Plugin-Manager)
