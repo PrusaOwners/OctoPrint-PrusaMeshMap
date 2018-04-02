@@ -1,10 +1,20 @@
 # OctoPrint-PrusaMeshMap
 
-## This plugin is undergoing alpha testing! ##
+## This plugin is undergoing beta testing! ##
 
 ## Description
 
-This OctoPrint plugin will create a "Prusa Mesh Leveling" tab with controls to initiate a mesh bed level operation. By default the GCode script it runs (configurable in settings!) will also do a G81 mesh level status check. This plugin has a hook defined that watches for the Prusa mesh level status lines and every time it receives a full seven line group of them, it will process a new heatmap viewable on the tab. Going the hook route has the advantage in that you can add G81 to your slicer start GCode and get a new heatmap every print, just click the "reload" button below the heatmap image to see it.
+This plugin takes Prusa's G81 mesh level output and translates it into an easy to read heatmap using matplotlib.
+
+Upon installation, you will have a "Prusa Mesh Leveling" tab:
+
+![example showing new tab in interface](example.png)
+
+Clicking "Perform Bed Level and Check" will execute a bed level operation and status check using a GCode script defined in the settings:
+
+![example showing GCode script in settings](example2.png)
+
+It should be noted that the heatmap image **will not** reload automatically. To reload, click "Reload Heatmap Image" below the heatmap. This is to allow you to be paying attention and see how your new bed level result changes.
 
 ## Setup
 
