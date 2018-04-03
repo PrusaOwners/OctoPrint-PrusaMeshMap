@@ -1,13 +1,21 @@
-<h4>Prusa Mesh Leveling</h4>
-
-<p>
-    Specify the GCODE script to perform the mesh bed level operation as well as to check its status after the leveling operation completes. You may also include your own stuff here, like bed temps or PINDA temperature stabilization. Just make sure your extras happen before G81.
-</p>
+<h2>Prusa Mesh Leveling</h2>
 <form class="form-horizontal">
+    <h3>GCODE Script</h3>
+    <p>
+    Specify the GCODE script to perform the mesh bed level operation as well as to check its status after the leveling operation completes. You may also include your own stuff here, like bed temps or PINDA temperature stabilization. Just make sure your extras happen before G81.
+    </p>
     <div class="control-group">
         <label class="control-label">Mesh Leveling GCode Script</label>
         <div class="controls">
             <textarea rows="4" class="block" data-bind="value: settingsViewModel.settings.plugins.PrusaMeshMap.do_level_gcode"></textarea>
+        </div>
+    </div>
+    <h3>Heatmap Options</h3>
+    <div class="control-group" title="Aspect ratio of the webcam stream, either 16:9 or 4:3">
+        <label class="control-label" for="settings-webcamStreamRatio">Colormap</label>
+        <div class="controls">
+            <select data-bind="options: matplotlib_heatmap_theme_options, value: settingsViewModel.settings.plugins.PrusaMeshMap.matplotlib_heatmap_theme"></select>
+            <span class="help-inline">See <a href="https://matplotlib.org/examples/color/colormaps_reference.html" target="matplotlib-colors">colormap reference</a> for previews.</span>
         </div>
     </div>
 </form>

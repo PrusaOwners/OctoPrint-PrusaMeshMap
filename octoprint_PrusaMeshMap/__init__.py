@@ -28,7 +28,8 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 
 	def get_settings_defaults(self):
 		return dict(
-                        do_level_gcode= 'G28 W ; home all without mesh bed level\nG80 ; mesh bed leveling\nG81 ; check mesh leveling results'
+                        do_level_gcode = 'G28 W ; home all without mesh bed level\nG80 ; mesh bed leveling\nG81 ; check mesh leveling results',
+                        matplotlib_heatmap_theme = 'viridis'
 		)
 
 	##~~ AssetPlugin mixin
@@ -125,7 +126,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
                 # to create the smooth looks. At this point you
                 # can still adjust some visual elements later.
                 # "cmap" controls the matplotlib colormap scheme.
-                plt.imshow(float_array, interpolation='spline16', cmap='plasma')
+                plt.imshow(float_array, interpolation='spline16', cmap=self._settings.get(["matplotlib_heatmap_theme"]))
 
                 # Set various options about the graph image before
                 # we generate it. Things like labeling the axes and
