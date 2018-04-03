@@ -26,3 +26,13 @@ Install via the bundled [Plugin Manager](https://github.com/foosel/OctoPrint/wik
 or manually using this URL:
 
     https://github.com/ff8jake/OctoPrint-PrusaMeshMap/archive/master.zip
+
+## Troubleshooting
+
+For many users the plugin should install without issues per the setup steps above; however, we have seen some users experience issues downloading or installing the prerequisites **matplotlib<=2.2.0** and **numpy**.
+
+You may see the following:
+
+* If you receive "MemoryError", this may be a limitation of Raspberry Pi Zero. We have seen some people fix a similar issue by defining ``--no-cache-dir`` in pip's options. OctoPrint's Plugin Manager > Settings > Wrench Icon > Additional Arguments field gives you a spot to add ``--no-cache-dir`` if you'd like to see if it gets you around the problem. Feedback appreciated.
+* **matplotlib** stuck downloading for a long time. The user we had with this issue who was able to get into octoprint.log found a **cbook** error. This seems to be caused by the operating system not having python-backports package installed.
+* If you encounter any other installation issues, please open an issue and include your hardware and operating system.
