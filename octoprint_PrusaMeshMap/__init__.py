@@ -28,7 +28,8 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 
 	def get_settings_defaults(self):
 		return dict(
-                        do_level_gcode= 'G28 W ; home all without mesh bed level\nG80 ; mesh bed leveling\nG81 ; check mesh leveling results'
+                        do_level_gcode = 'G28 W ; home all without mesh bed level\nG80 ; mesh bed leveling\nG81 ; check mesh leveling results',
+                        matplotlib_heatmap_theme = 'viridis'
 		)
 
 	##~~ AssetPlugin mixin
@@ -125,16 +126,17 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
                 # to create the smooth looks. At this point you
                 # can still adjust some visual elements later.
                 # "cmap" controls the matplotlib colormap scheme.
-                plt.imshow(float_array, interpolation='spline16', cmap='plasma')
+                plt.imshow(float_array, interpolation='spline16', cmap=self._settings.get(["matplotlib_heatmap_theme"]))
 
                 # Set various options about the graph image before
                 # we generate it. Things like labeling the axes and
                 # colorbar, and setting the X axis label/ticks to
                 # the top to better match the G81 output.
                 plt.title("Mesh Level: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+                plt.axis('image')
                 plt.xlabel("X Axis")
                 plt.ylabel("Y Axis")
-                plt.colorbar(label="Bed Variance (in mm)")
+                plt.colorbar(label="Bed Variance: " + str(round(float_array.max() - float_array.min(), 3)) + "mm")
 
                 # Flip that Y Axis again to put 0 at the bottom.
                 # Since we inverted our Y Axis above as well, this
