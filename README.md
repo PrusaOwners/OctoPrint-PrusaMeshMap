@@ -27,12 +27,9 @@ or manually using this URL:
 
     https://github.com/ff8jake/OctoPrint-PrusaMeshMap/archive/v0.1.2.zip
 
-## Troubleshooting
+### Raspberry Pi Users
 
-For many users the plugin should install without issues per the setup steps above; however, we have seen some users experience issues downloading or installing the prerequisites **matplotlib<=2.2.0** and **numpy**.
+This plugin uses **matplotlib** and **numpy** packages from pip. Since wheels do not exist for these ARM packages in Python 2.7, they will need to compile. This process takes a long time (30min+). If you try to install this directly from Plugin Manager without installing these dependencies first, the compile process will take long enough that OctoPrint errors out the plugin install and quits responding **while the install process continues in the background!** You can monitor the process with **top** command via SSH, and when it finishes attempt the plugin install again per the above. It will detect that the plugin is already installed and force a reinstall, and since the dependencies will be there it will go on without issues.
 
-You may see the following:
+A better method may be to log in to the Pi via SSH before doing the plugin install and run ``/home/pi/oprint/bin/pip install matplotlib numpy`` first. This will still take a long time, but will get the packages the plugin depends on in place beforehand. The plugin will then install without issues within a few seconds in Plugin Manager.
 
-* If you receive "MemoryError", this may be a limitation of Raspberry Pi Zero. We have seen some people fix a similar issue by defining ``--no-cache-dir`` in pip's options. OctoPrint's Plugin Manager > Settings > Wrench Icon > Additional Arguments field gives you a spot to add ``--no-cache-dir`` if you'd like to see if it gets you around the problem. Feedback appreciated.
-* **matplotlib** stuck downloading for a long time. The user we had with this issue who was able to get into octoprint.log found a **cbook** error. This seems to be caused by the operating system not having python-backports package installed. We also had another user who just had this take a long time to install and worked fine after. Be patient if installing this on low end hardware maybe?
-* If you encounter any other installation issues, please open an issue and include your hardware and operating system.
