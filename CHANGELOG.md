@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.2.1
+
+**Bug Fixes:**
+* Forgot to update version number in setup.py. This was causing OctoPrint to continuously alert that there was a plugin update when there wasn't.
+
 ## v0.2.0
 
 **New Features:**
