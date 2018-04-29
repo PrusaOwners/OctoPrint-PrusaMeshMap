@@ -25,7 +25,7 @@ It should be noted that this plugin has a handler that is watching output receiv
 Install via the bundled [Plugin Manager](https://github.com/foosel/OctoPrint/wiki/Plugin:-Plugin-Manager)
 or manually using this URL:
 
-    https://github.com/ff8jake/OctoPrint-PrusaMeshMap/archive/v0.1.2.zip
+    https://github.com/ff8jake/OctoPrint-PrusaMeshMap/archive/master.zip
 
 ### Raspberry Pi Users
 
