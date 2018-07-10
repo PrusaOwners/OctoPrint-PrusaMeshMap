@@ -14,6 +14,7 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 import re
 import octoprint.plugin
 import octoprint.printer
@@ -85,8 +86,8 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         def mesh_level_check(self, comm, line, *args, **kwargs):
                 if re.match(r"^(  -?\d+.\d+)+$", line):
                     self.mesh_level_responses.append(line)
-                    self.mesh_level_generate()
                     self._logger.info("FOUND: " + line)
+                    self.mesh_level_generate()
                     return line
                 else:
                     return line
@@ -96,37 +97,124 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         mesh_level_responses = []
 
         def mesh_level_generate(self):
-            if len(self.mesh_level_responses) == 7:
 
-                processed_responses = []
+            # We work with coordinates relative to the dashed line on the
+            # skilkscreen on the MK52 heatbed: print area coordinates. Note
+            # this doesn't exactly line up with the steel sheet, so we have to
+            # adjust for that when generating the background image, below.
+            # Points are measured from the middle of the PINDA / middle of the
+            # 4 probe circles on the MK52.
 
+            MESH_NUM_POINTS_X = 7
+            MESH_NUM_MEASURED_POINTS_X = 3
+            MESH_NUM_POINTS_Y = 7
+            MESH_NUM_MEASURED_POINTS_Y = 3
+            BED_SIZE_X = 250
+            BED_SIZE_Y = 210
+
+            # These values come from mesh_bed_calibration.cpp
+            BED_PRINT_ZERO_REF_X = 2
+            BED_PRINT_ZERO_REF_Y = 9.4
+
+            # Mesh probe points, in print area coordinates
+            # We assume points are symmetrical (i.e a rectangular grid)
+            MESH_FRONT_LEFT_X = 37 - BED_PRINT_ZERO_REF_X
+            MESH_FRONT_LEFT_Y = 18.4 - BED_PRINT_ZERO_REF_Y
+
+            MESH_REAR_RIGHT_X = 245 - BED_PRINT_ZERO_REF_X
+            MESH_REAR_RIGHT_Y = 210.4 - BED_PRINT_ZERO_REF_Y
+
+            # Offset of the marked print area on the steel sheet relative to
+            # the marked print area on the MK52. The steel sheet has margins
+            # outside of the print area, so we need to account for that too.
+
+            SHEET_OFFS_X = 0
+            # Technically SHEET_OFFS_Y is -2 (sheet is BELOW (frontward to) that on the MK52)
+            # However, we want to show the user a view that looks lined up with the MK52, so we
+            # ignore this and set the value to zero.
+            SHEET_OFFS_Y = 0
+                               # 
+            SHEET_MARGIN_LEFT = 0
+            SHEET_MARGIN_RIGHT = 0
+            # The SVG of the steel sheet (up on Github) is not symmetric as the actual one is
+            SHEET_MARGIN_FRONT = 17
+            SHEET_MARGIN_BACK = 14
+
+            sheet_left_x = -(SHEET_MARGIN_LEFT + SHEET_OFFS_X)
+            sheet_right_x = sheet_left_x + BED_SIZE_X + SHEET_MARGIN_LEFT + SHEET_MARGIN_RIGHT
+            sheet_front_y = -(SHEET_MARGIN_FRONT + SHEET_OFFS_Y)
+            sheet_back_y = sheet_front_y + BED_SIZE_Y + SHEET_MARGIN_FRONT + SHEET_MARGIN_BACK
+
+
+            mesh_range_x = MESH_REAR_RIGHT_X - MESH_FRONT_LEFT_X
+            mesh_range_y = MESH_REAR_RIGHT_Y - MESH_FRONT_LEFT_Y
+
+            mesh_delta_x = mesh_range_x / (MESH_NUM_POINTS_X - 1)
+            mesh_delta_y = mesh_range_y / (MESH_NUM_POINTS_Y - 1)
+
+            # Accumulate response lines until we have all of them
+            if len(self.mesh_level_responses) == MESH_NUM_POINTS_Y:
+
+                self._logger.info("Generating heatmap")
+
+                # TODO: Validate each row has MESH_NUM_POINTS_X values
+
+                mesh_values = []
+
+                # Parse response lines into a 2D array of floats in row-major order
                 for response in self.mesh_level_responses:
                     response = re.sub(r"^[ ]+", "", response)
                     response = re.sub(r"[ ]+", ",", response)
-                    processed_responses.append([float(i) for i in response.split(",")])
+                    mesh_values.append([float(i) for i in response.split(",")])
 
-                self._logger.info(str(processed_responses));
+                # Generate a 2D array of the Z values in column-major order
+                col_i = 0
+                mesh_z = np.zeros(shape=(7,7))
+                for col in mesh_values:
+                    row_i = 0
+                    for val in col:
+                        mesh_z[col_i][row_i] = val
+                        row_i = row_i + 1
+                    col_i = col_i + 1
 
-                # Let's take our list of lists and make it into
-                # a numpy array that matplotlib can do something
-                # with. We'll also take this opportunity to
-                # reverse the order (Y Axis). Of course, this will
-                # make things upside down for the user. So, we'll
-                # flip it again before rendering the heatmap image.
-                # This lets us get 0,0 at the bottom left corner.
-                float_array = np.array(list(reversed(processed_responses)))
+                # Calculate the X and Y values of the mesh bed points, in print area coordinates
+                mesh_x = np.zeros(MESH_NUM_POINTS_X)
+                for i in range(0, MESH_NUM_POINTS_X):
+                    mesh_x[i] = MESH_FRONT_LEFT_X + mesh_delta_x*i
 
-                # Set figure and gca objects, this will let us
-                # adjust things about our heatmap image as well
-                # as adjust axes label locations.
-                fig = plt.figure()
+                mesh_y = np.zeros(MESH_NUM_POINTS_Y)
+                for i in range(0, MESH_NUM_POINTS_Y):
+                    mesh_y[i] = MESH_FRONT_LEFT_Y + mesh_delta_y*i
+
+                bed_variance = round(mesh_z.max() - mesh_z.min(), 3)
+
+                ############
+                # Draw the heatmap
+                #fig = plt.figure(dpi=96, figsize=(12, 9))
+                fig = plt.figure(dpi=96, figsize=(10,8.3))
                 ax = plt.gca()
 
-                # Calculate our heatmap. Interpolation is used
-                # to create the smooth looks. At this point you
-                # can still adjust some visual elements later.
-                # "cmap" controls the matplotlib colormap scheme.
-                plt.imshow(float_array, interpolation='spline16', cmap=self._settings.get(["matplotlib_heatmap_theme"]))
+                # Plot all mesh points, including measured ones and the ones
+                # that are bogus (calculated). Indicate the actual measured
+                # points with a different marker.
+                for x_i in range(0, len(mesh_x)):
+                    for y_i in range(0, len(mesh_y)):
+                        if ((x_i % MESH_NUM_MEASURED_POINTS_X) == 0) and ((y_i % MESH_NUM_MEASURED_POINTS_Y) == 0):
+                            plt.plot(mesh_x[x_i], mesh_y[y_i], 'o', color='m')
+                        else:
+                            plt.plot(mesh_x[x_i], mesh_y[y_i], '.', color='k')
+
+                # Draw the contour map. Y values are reversed to account for
+                # bottom-up orientation of plot library
+                contour = plt.contourf(mesh_x, mesh_y[::-1], mesh_z, alpha=.75, antialiased=True, cmap=plt.cm.get_cmap(self._settings.get(["matplotlib_heatmap_theme"])))
+
+                # Insert the background image (currently an image of the MK3 PEI-coated steel sheet)
+                img = mpimg.imread(self.get_asset_folder() + '/img/mk52_steel_sheet.png')
+                plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap(self._settings.get(["matplotlib_heatmap_theme"])))
+
+                # Set axis ranges (although we don't currently show these...)
+                ax.set_xlim(left=sheet_left_x, right=sheet_right_x)
+                ax.set_ylim(bottom=sheet_front_y, top=sheet_back_y)
 
                 # Set various options about the graph image before
                 # we generate it. Things like labeling the axes and
@@ -134,21 +222,22 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
                 # the top to better match the G81 output.
                 plt.title("Mesh Level: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
                 plt.axis('image')
-                plt.xlabel("X Axis")
-                plt.ylabel("Y Axis")
-                plt.colorbar(label="Bed Variance: " + str(round(float_array.max() - float_array.min(), 3)) + "mm")
+                #ax.axes.get_xaxis().set_visible(True)
+                #ax.axes.get_yaxis().set_visible(True)
+                plt.xlabel("X Axis (mm)")
+                plt.ylabel("Y Axis (mm)")
 
-                # Flip that Y Axis again to put 0 at the bottom.
-                # Since we inverted our Y Axis above as well, this
-                # will also correct the view on the final heatmap.
-                ax.invert_yaxis()
+                #plt.colorbar(label="Bed Variance: " + str(round(mesh_z.max() - mesh_z.min(), 3)) + "mm")
+                plt.colorbar(contour, label="Measured Level (mm)")
+                
+                plt.text(0.5, 0.43, "Total Bed Variance: " + str(bed_variance) + " (mm)", fontsize=10, horizontalalignment='center', verticalalignment='center', transform=ax.transAxes, bbox=dict(facecolor='#eeefff', alpha=0.5))
 
                 # Save our graph as an image in the current directory.
-                self._logger.info("Mesh heatmap saved to " + self.get_asset_folder() + "/img/heatmap.png")
-                fig.savefig(self.get_asset_folder() + '/img/heatmap.png')
-
+                fig.savefig(self.get_asset_folder() + '/img/heatmap.png', bbox_inches="tight")
+                self._logger.info("Heatmap updated")
 
                 del self.mesh_level_responses[:]
+
 
 # If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py
 # ("OctoPrint-PluginSkeleton"), you may define that here. Same goes for the other metadata derived from setup.py that
