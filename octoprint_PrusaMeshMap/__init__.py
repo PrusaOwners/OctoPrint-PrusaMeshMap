@@ -87,17 +87,17 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 
     def mesh_level_check(self, comm, line, *args, **kwargs):
         if re.match(r"^(  -?\d+.\d+)+$", line):
-					self.mesh_level_responses.append(line)
-					self._logger.info("FOUND: " + line)\
-					self.mesh_level_generate()
-					return line
-				elif line.startswith("mesh_map_output"):
-					klipper_json_line = line
-					self._logger.info("Klipper meme aquired. Ready the matplotlibs: " + line)
-					self.generate_graph_klipper_mode(klipper_json_line)
-					return line
-				else:
-					return line
+            self.mesh_level_responses.append(line)
+            self._logger.info("FOUND: " + line)
+            self.mesh_level_generate() #meme
+            return line
+        elif line.startswith("mesh_map_output"):
+	    klipper_json_line = line
+            self._logger.info("Klipper meme aquired. Ready the matplotlibs: " + line)
+            self.generate_graph_klipper_mode(klipper_json_line)
+            return line
+        else:
+            return line
 
         # Klipper mode heatmap generation. Above brig's stuff because it's better :D 
 
@@ -127,19 +127,19 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         BED_PRINT_ZERO_REF_Y = 9.4
         SHEET_OFFS_X = 0
         SHEET_OFFS_Y = 0
-				SHEET_MARGIN_LEFT = 0
-				SHEET_MARGIN_RIGHT = 0
-				SHEET_MARGIN_FRONT = 17
-				SHEET_MARGIN_BACK = 14
-				sheet_left_x = -(SHEET_MARGIN_LEFT + SHEET_OFFS_X)
-				sheet_right_x = sheet_left_x + BED_SIZE_X + SHEET_MARGIN_LEFT + SHEET_MARGIN_RIGHT
-				sheet_front_y = -(SHEET_MARGIN_FRONT + SHEET_OFFS_Y)
-				sheet_back_y = sheet_front_y + BED_SIZE_Y + SHEET_MARGIN_FRONT + SHEET_MARGIN_BACK
+        SHEET_MARGIN_LEFT = 0
+        SHEET_MARGIN_RIGHT = 0
+        SHEET_MARGIN_FRONT = 17
+        SHEET_MARGIN_BACK = 14
+        sheet_left_x = -(SHEET_MARGIN_LEFT + SHEET_OFFS_X)
+        sheet_right_x = sheet_left_x + BED_SIZE_X + SHEET_MARGIN_LEFT + SHEET_MARGIN_RIGHT
+        sheet_front_y = -(SHEET_MARGIN_FRONT + SHEET_OFFS_Y)
+        sheet_back_y = sheet_front_y + BED_SIZE_Y + SHEET_MARGIN_FRONT + SHEET_MARGIN_BACK
 
             #Define probe points to plot and meshgridify them
         x=np.linspace(minPoints[0],maxPoints[0],z_positions_shape[1],endpoint=True)
-				y=np.linspace(minPoints[1],maxPoints[1],z_positions_shape[0],endpoint=True)
-				x, y = np.meshgrid(x,y)
+        y=np.linspace(minPoints[1],maxPoints[1],z_positions_shape[0],endpoint=True)
+	x, y = np.meshgrid(x,y)
         
             #Plot all of the things, including the mk52 back
         img = mpimg.imread(r'C:\Users\matth\Documents\GitHub\OctoPrint-PrusaMeshMap\octoprint_PrusaMeshMap\static\img\mk52_steel_sheet.png')
@@ -147,13 +147,13 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
             
             #plot the interpolated mesh, bar, and probed points
         image = plt.imshow(z_positions,interpolation='bicubic',cmap='viridis',extent=minMax)#Plot the background    
-				plt.colorbar(image,label="Measured Level (mm)")#Color bar on the side
-				plt.scatter(x,y,color='r')#Scatterplot of probed points
+        plt.colorbar(image,label="Measured Level (mm)")#Color bar on the side
+        plt.scatter(x,y,color='r')#Scatterplot of probed points
             
             #Add fancy titles
         plt.title("Mesh Level: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         plt.xlabel("X Axis (mm)")
-				plt.ylabel("Y Axis (mm)")
+        plt.ylabel("Y Axis (mm)")
             
             # Save our graph as an image in the current directory.
         fig.savefig(self.get_asset_folder() + '/img/heatmap.png', bbox_inches="tight")
@@ -222,87 +222,87 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 
             # Accumulate response lines until we have all of them
         if len(self.mesh_level_responses) == MESH_NUM_POINTS_Y:
-					self._logger.info("Generating heatmap")
+	    self._logger.info("Generating heatmap")
 
-                # TODO: Validate each row has MESH_NUM_POINTS_X values
+            # TODO: Validate each row has MESH_NUM_POINTS_X values
             mesh_values = []
           
                 # Parse response lines into a 2D array of floats in row-major order
             for response in self.mesh_level_responses:
 			    response = re.sub(r"^[ ]+", "", response)
 			    response = re.sub(r"[ ]+", ",", response)
-				mesh_values.append([float(i) for i in response.split(",")])
+		            mesh_values.append([float(i) for i in response.split(",")])
 
                 # Generate a 2D array of the Z values in column-major order
             col_i = 0
             mesh_z = np.zeros(shape=(7,7))
-                for col in mesh_values:
-                    row_i = 0
-                    for val in col:
-                        mesh_z[col_i][row_i] = val
-                        row_i = row_i + 1
-                    col_i = col_i + 1
+            for col in mesh_values:
+                row_i = 0
+                for val in col:
+                    mesh_z[col_i][row_i] = val
+                    row_i = row_i + 1
+                col_i = col_i + 1
 
                 # Calculate the X and Y values of the mesh bed points, in print area coordinates
-                mesh_x = np.zeros(MESH_NUM_POINTS_X)
-                for i in range(0, MESH_NUM_POINTS_X):
-                    mesh_x[i] = MESH_FRONT_LEFT_X + mesh_delta_x*i
+            mesh_x = np.zeros(MESH_NUM_POINTS_X)
+            for i in range(0, MESH_NUM_POINTS_X):
+                mesh_x[i] = MESH_FRONT_LEFT_X + mesh_delta_x*i
 
-                mesh_y = np.zeros(MESH_NUM_POINTS_Y)
-                for i in range(0, MESH_NUM_POINTS_Y):
-                    mesh_y[i] = MESH_FRONT_LEFT_Y + mesh_delta_y*i
+            mesh_y = np.zeros(MESH_NUM_POINTS_Y)
+            for i in range(0, MESH_NUM_POINTS_Y):
+                mesh_y[i] = MESH_FRONT_LEFT_Y + mesh_delta_y*i
 
-                bed_variance = round(mesh_z.max() - mesh_z.min(), 3)
+            bed_variance = round(mesh_z.max() - mesh_z.min(), 3)
 
                 ############
                 # Draw the heatmap
                 #fig = plt.figure(dpi=96, figsize=(12, 9))
-                fig = plt.figure(dpi=96, figsize=(10,8.3))
-                ax = plt.gca()
+            fig = plt.figure(dpi=96, figsize=(10,8.3))
+            ax = plt.gca()
 
                 # Plot all mesh points, including measured ones and the ones
                 # that are bogus (calculated). Indicate the actual measured
                 # points with a different marker.
-                for x_i in range(0, len(mesh_x)):
-                    for y_i in range(0, len(mesh_y)):
-                        if ((x_i % MESH_NUM_MEASURED_POINTS_X) == 0) and ((y_i % MESH_NUM_MEASURED_POINTS_Y) == 0):
-                            plt.plot(mesh_x[x_i], mesh_y[y_i], 'o', color='m')
-                        else:
-                            plt.plot(mesh_x[x_i], mesh_y[y_i], '.', color='k')
+            for x_i in range(0, len(mesh_x)):
+                for y_i in range(0, len(mesh_y)):
+                    if ((x_i % MESH_NUM_MEASURED_POINTS_X) == 0) and ((y_i % MESH_NUM_MEASURED_POINTS_Y) == 0):
+                        plt.plot(mesh_x[x_i], mesh_y[y_i], 'o', color='m')
+                    else:
+                        plt.plot(mesh_x[x_i], mesh_y[y_i], '.', color='k')
 
                 # Draw the contour map. Y values are reversed to account for
                 # bottom-up orientation of plot library
-                contour = plt.contourf(mesh_x, mesh_y[::-1], mesh_z, alpha=.75, antialiased=True, cmap=plt.cm.get_cmap(self._settings.get(["matplotlib_heatmap_theme"])))
+            contour = plt.contourf(mesh_x, mesh_y[::-1], mesh_z, alpha=.75, antialiased=True, cmap=plt.cm.get_cmap(self._settings.get(["matplotlib_heatmap_theme"])))
 
                 # Insert the background image (currently an image of the MK3 PEI-coated steel sheet)
-                img = mpimg.imread(self.get_asset_folder() + '/img/mk52_steel_sheet.png')
-                plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap(self._settings.get(["matplotlib_heatmap_theme"])))
+            img = mpimg.imread(self.get_asset_folder() + '/img/mk52_steel_sheet.png')
+            plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap(self._settings.get(["matplotlib_heatmap_theme"])))
 
                 # Set axis ranges (although we don't currently show these...)
-                ax.set_xlim(left=sheet_left_x, right=sheet_right_x)
-                ax.set_ylim(bottom=sheet_front_y, top=sheet_back_y)
+            ax.set_xlim(left=sheet_left_x, right=sheet_right_x)
+            ax.set_ylim(bottom=sheet_front_y, top=sheet_back_y)
 
                 # Set various options about the graph image before
                 # we generate it. Things like labeling the axes and
                 # colorbar, and setting the X axis label/ticks to
                 # the top to better match the G81 output.
-                plt.title("Mesh Level: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-                plt.axis('image')
+            plt.title("Mesh Level: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+            plt.axis('image')
                 #ax.axes.get_xaxis().set_visible(True)
                 #ax.axes.get_yaxis().set_visible(True)
-                plt.xlabel("X Axis (mm)")
-                plt.ylabel("Y Axis (mm)")
+            plt.xlabel("X Axis (mm)")
+            plt.ylabel("Y Axis (mm)")
 
                 #plt.colorbar(label="Bed Variance: " + str(round(mesh_z.max() - mesh_z.min(), 3)) + "mm")
-                plt.colorbar(contour, label="Measured Level (mm)")
+            plt.colorbar(contour, label="Measured Level (mm)")
                 
-                plt.text(0.5, 0.43, "Total Bed Variance: " + str(bed_variance) + " (mm)", fontsize=10, horizontalalignment='center', verticalalignment='center', transform=ax.transAxes, bbox=dict(facecolor='#eeefff', alpha=0.5))
+            plt.text(0.5, 0.43, "Total Bed Variance: " + str(bed_variance) + " (mm)", fontsize=10, horizontalalignment='center', verticalalignment='center', transform=ax.transAxes, bbox=dict(facecolor='#eeefff', alpha=0.5))
 
                 # Save our graph as an image in the current directory.
-                fig.savefig(self.get_asset_folder() + '/img/heatmap.png', bbox_inches="tight")
-                self._logger.info("Heatmap updated")
+            fig.savefig(self.get_asset_folder() + '/img/heatmap.png', bbox_inches="tight")
+            self._logger.info("Heatmap updated")
 
-                del self.mesh_level_responses[:]
+            del self.mesh_level_responses[:]
 
 
 # If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py
