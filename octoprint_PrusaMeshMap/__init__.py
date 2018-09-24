@@ -59,8 +59,8 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 
         def on_event(self, event, payload):
             if event is "Connected":
-            self._printer.commands("M1234")
-
+            #self._printer.commands("M1234")
+            pass
 	##~~ Softwareupdate hook
 
 	def get_update_information(self):
@@ -104,18 +104,17 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         def generate_graph_klipper_mode(self,klipper_json_line):
             #Remove the first 16 charicters of the line and import to a dictionary
             klipper_json_line = klipper_json_line[16:] 
-            json = {}
-            json = json.loads(klipper_json_line)
-            xyOffset = json["xy_offset"] 
-            minPoints = json["min_point"]
+            jsonDict = json.loads(klipper_json_line)
+            xyOffset = jsonDict["xy_offset"] 
+            minPoints = jsonDict["min_point"]
             
             #Set up minimum and max points, arrays, math, etc
             minPoints[0]=minPoints[0]+xyOffset[0]
             minPoints[1]=minPoints[1]+xyOffset[1]
-            maxPoints = (json["max_point"])
+            maxPoints = (jsonDict["max_point"])
             maxPoints[0]=maxPoints[0]+xyOffset[0]
             maxPoints[1]=maxPoints[1]+xyOffset[1]
-            z_positions= np.array(json["z_positions"])
+            z_positions= np.array(jsonDict["z_positions"])
             z_positions_shape = z_positions.shape
             minMax = [minPoints[0],maxPoints[0],minPoints[1],maxPoints[1]]
             probeSpacingX = (maxPoints[0]-minPoints[0])/(z_positions_shape[1]-1)	
