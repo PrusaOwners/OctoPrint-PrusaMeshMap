@@ -59,7 +59,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 
         def on_event(self, event, payload):
             if event is "Connected":
-                self._printer.commands("M1234")
+            self._printer.commands("M1234")
 
 	##~~ Softwareupdate hook
 
@@ -104,6 +104,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         def generate_graph_klipper_mode(self,klipper_json_line):
             #Remove the first 16 charicters of the line and import to a dictionary
             klipper_json_line = klipper_json_line[16:] 
+            json = {}
             json = json.loads(klipper_json_line)
             xyOffset = json["xy_offset"] 
             minPoints = json["min_point"]
