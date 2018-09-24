@@ -27,27 +27,27 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
                          octoprint.plugin.StartupPlugin,
                          octoprint.plugin.EventHandlerPlugin):
 
-	##~~ SettingsPlugin mixin
+    ##~~ SettingsPlugin mixin
 
-	def get_settings_defaults(self):
-		return dict(
+    def get_settings_defaults(self):
+        return dict(
                         do_level_gcode = 'G28 W ; home all without mesh bed level\nG80 ; mesh bed leveling\nG81 ; check mesh leveling results',
                         matplotlib_heatmap_theme = 'viridis'
-		)
+        )
 
-	##~~ AssetPlugin mixin
+    ##~~ AssetPlugin mixin
 
-	def get_assets(self):
-	    # Define your plugin's asset files to automatically include in the
-	    # core UI here.
-		return dict(
-			js=["js/PrusaMeshMap.js"],
-			css=["css/PrusaMeshMap.css"],
-			less=["less/PrusaMeshMap.less"],
+    def get_assets(self):
+        # Define your plugin's asset files to automatically include in the
+        # core UI here.
+        return dict(
+            js=["js/PrusaMeshMap.js"],
+            css=["css/PrusaMeshMap.css"],
+            less=["less/PrusaMeshMap.less"],
                         img_heatmap=["img/heatmap.png"]
-		)
+        )
                 
-	##~~ TemplatePlugin mixin
+    ##~~ TemplatePlugin mixin
 
         #def get_template_configs(self):
         #        return [
@@ -60,44 +60,44 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         def on_event(self, event, payload):
             if event is "Connected":
             #self._printer.commands("M1234")
-            pass
-	##~~ Softwareupdate hook
+                pass
+    ##~~ Softwareupdate hook
 
-	def get_update_information(self):
-		# Define the configuration for your plugin to use with the Software Update
-		# Plugin here. See https://github.com/foosel/OctoPrint/wiki/Plugin:-Software-Update
-		# for details.
-		return dict(
-			PrusaMeshMap=dict(
-				displayName="Prusameshmap Plugin",
-				displayVersion=self._plugin_version,
+    def get_update_information(self):
+        # Define the configuration for your plugin to use with the Software Update
+        # Plugin here. See https://github.com/foosel/OctoPrint/wiki/Plugin:-Software-Update
+        # for details.
+        return dict(
+            PrusaMeshMap=dict(
+                displayName="PrusaKlippermeshmap Plugin",
+                displayVersion=self._plugin_version,
 
-				# version check: github repository
-				type="github_release",
-				user="ff8jake",
-				repo="OctoPrint-PrusaMeshMap",
-				current=self._plugin_version,
+                # version check: github repository
+                type="github_release",
+                user="ff8jake,mcm001",
+                repo="OctoPrint-PrusaMeshMap",
+                current=self._plugin_version,
 
-				# update method: pip
-				pip="https://github.com/ff8jake/OctoPrint-PrusaMeshMap/archive/{target_version}.zip"
-			)
-		)
+                # update method: pip
+                pip="https://github.com/mcm001/OctoPrint-PrusaMeshMap/archive/{target_version}.zip"
+            )
+        )
 
         ##~~ GCode Received hook
 
         def mesh_level_check(self, comm, line, *args, **kwargs):
-                if re.match(r"^(  -?\d+.\d+)+$", line):
-                    self.mesh_level_responses.append(line)
-                    self._logger.info("FOUND: " + line)
-                    self.mesh_level_generate()
-                    return line
-                elif line.startswith("mesh_map_output"):
-                    klipper_json_line = line
-		    self._logger.info("Klipper meme aquired. Ready the matplotlibs: " + line)
-                    self.generate_graph_klipper_mode(klipper_json_line)
-                    return line
-		else:
-                    return line
+            if re.match(r"^(  -?\d+.\d+)+$", line):
+                self.mesh_level_responses.append(line)
+                self._logger.info("FOUND: " + line)
+                self.mesh_level_generate()
+                return line
+            elif line.startswith("mesh_map_output"):
+                klipper_json_line = line
+                self._logger.info("Klipper meme aquired. Ready the matplotlibs: " + line)
+                self.generate_graph_klipper_mode(klipper_json_line)
+                return line
+            else:
+                return line
 
         # Klipper mode heatmap generation. Above brig's stuff because it's better :D 
 
@@ -117,7 +117,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
             z_positions= np.array(jsonDict["z_positions"])
             z_positions_shape = z_positions.shape
             minMax = [minPoints[0],maxPoints[0],minPoints[1],maxPoints[1]]
-            probeSpacingX = (maxPoints[0]-minPoints[0])/(z_positions_shape[1]-1)	
+            probeSpacingX = (maxPoints[0]-minPoints[0])/(z_positions_shape[1]-1)    
             probeSpacingY = (maxPoints[1]-minPoints[1])/(z_positions_shape[0]-1)
             
             #Variables shamelessly reused from the stock FW code
@@ -146,7 +146,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
             plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap('viridis'))
             
             #plot the interpolated mesh, bar, and probed points
-            image = plt.imshow(z_positions,interpolation='bicubic',cmap='viridis',extent=minMax)#Plot the background	
+            image = plt.imshow(z_positions,interpolation='bicubic',cmap='viridis',extent=minMax)#Plot the background    
             plt.colorbar(image,label="Measured Level (mm)")#Color bar on the side
             plt.scatter(x,y,color='r')#Scatterplot of probed points
             
@@ -313,11 +313,11 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 __plugin_name__ = "Prusa Mesh Leveling"
 
 def __plugin_load__():
-	global __plugin_implementation__
-	__plugin_implementation__ = PrusameshmapPlugin()
+    global __plugin_implementation__
+    __plugin_implementation__ = PrusameshmapPlugin()
 
-	global __plugin_hooks__
-	__plugin_hooks__ = {
-		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
+    global __plugin_hooks__
+    __plugin_hooks__ = {
+        "octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
                 "octoprint.comm.protocol.gcode.received": __plugin_implementation__.mesh_level_check
-	}
+    }
