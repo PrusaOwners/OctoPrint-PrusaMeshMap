@@ -34,6 +34,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         return dict(
                         do_level_gcode = 'G28 W ; home all without mesh bed level\nG80 ; mesh bed leveling\nG81 ; check mesh leveling results',
                         matplotlib_heatmap_theme = 'viridis'
+						matplotlib_heatmap_background_image_style = 'MK52 Mode'
         )
 
     ##~~ AssetPlugin mixin
@@ -93,7 +94,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
             self._logger.info("FOUND: " + line)
             self.mesh_level_generate() #meme
             return line
-        elif line.startswith(""mesh_map_output"):
+        elif line.startswith("mesh_map_output"):
 	    klipper_json_line = line
             self._logger.info("Klipper line found. Ready the matplotlibs: " + line)
             self.generate_graph_klipper_mode(klipper_json_line)
