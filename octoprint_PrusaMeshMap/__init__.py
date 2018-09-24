@@ -93,10 +93,10 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
                     return line
                 elif line.startswith("mesh_map_output"):
                     klipper_json_line = line
-					self._logger.info("Klipper meme aquired. Ready the matplotlibs: " + line)
+		    self._logger.info("Klipper meme aquired. Ready the matplotlibs: " + line)
                     self.generate_graph_klipper_mode(klipper_json_line)
                     return line
-				else:
+		else:
                     return line
 
         # Klipper mode heatmap generation. Above brig's stuff because it's better :D 
