@@ -102,11 +102,13 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         # Klipper mode heatmap generation. Above brig's stuff because it's better :D 
 
         def generate_graph_klipper_mode(self,klipper_json_line):
-            
-            klipper_json_line = klipper_json_line[16:]
+            #Remove the first 16 charicters of the line and import to a dictionary
+            klipper_json_line = klipper_json_line[16:] 
             json = json.loads(klipper_json_line)
             xyOffset = json["xy_offset"] 
             minPoints = json["min_point"]
+            
+            #Set up minimum and max points, arrays, math, etc
             minPoints[0]=minPoints[0]+xyOffset[0]
             minPoints[1]=minPoints[1]+xyOffset[1]
             maxPoints = (json["max_point"])
@@ -117,19 +119,12 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
             minMax = [minPoints[0],maxPoints[0],minPoints[1],maxPoints[1]]
             probeSpacingX = (maxPoints[0]-minPoints[0])/(z_positions_shape[1]-1)	
             probeSpacingY = (maxPoints[1]-minPoints[1])/(z_positions_shape[0]-1)
-        
-            MESH_NUM_POINTS_X = 7
-            MESH_NUM_MEASURED_POINTS_X = 3
-            MESH_NUM_POINTS_Y = 7
-            MESH_NUM_MEASURED_POINTS_Y = 3
+            
+            #Variables shamelessly reused from the stock FW code
             BED_SIZE_X = 250
             BED_SIZE_Y = 210
             BED_PRINT_ZERO_REF_X = 2
             BED_PRINT_ZERO_REF_Y = 9.4
-            MESH_FRONT_LEFT_X = 37 - BED_PRINT_ZERO_REF_X
-            MESH_FRONT_LEFT_Y = 18.4 - BED_PRINT_ZERO_REF_Y
-            MESH_REAR_RIGHT_X = 245 - BED_PRINT_ZERO_REF_X
-            MESH_REAR_RIGHT_Y = 210.4 - BED_PRINT_ZERO_REF_Y
             SHEET_OFFS_X = 0
             SHEET_OFFS_Y = 0
             SHEET_MARGIN_LEFT = 0
@@ -141,21 +136,25 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
             sheet_front_y = -(SHEET_MARGIN_FRONT + SHEET_OFFS_Y)
             sheet_back_y = sheet_front_y + BED_SIZE_Y + SHEET_MARGIN_FRONT + SHEET_MARGIN_BACK
 
-
             #Define probe points to plot and meshgridify them
             x=np.linspace(minPoints[0],maxPoints[0],z_positions_shape[1],endpoint=True)
             y=np.linspace(minPoints[1],maxPoints[1],z_positions_shape[0],endpoint=True)
             x, y = np.meshgrid(x,y)
         
-            #Plot all of the things
+            #Plot all of the things, including the mk52 back
             img = mpimg.imread(r'C:\Users\matth\Documents\GitHub\OctoPrint-PrusaMeshMap\octoprint_PrusaMeshMap\static\img\mk52_steel_sheet.png')
             plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap('viridis'))
-
+            
+            #plot the interpolated mesh, bar, and probed points
             image = plt.imshow(z_positions,interpolation='bicubic',cmap='viridis',extent=minMax)#Plot the background	
             plt.colorbar(image,label="Measured Level (mm)")#Color bar on the side
             plt.scatter(x,y,color='r')#Scatterplot of probed points
+            
+            #Add fancy titles
             plt.title("Mesh Level: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-
+            plt.xlabel("X Axis (mm)")
+            plt.ylabel("Y Axis (mm)")
+            
             # Save our graph as an image in the current directory.
             fig.savefig(self.get_asset_folder() + '/img/heatmap.png', bbox_inches="tight")
             self._logger.info("Heatmap updated")
