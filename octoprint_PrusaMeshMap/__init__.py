@@ -85,86 +85,86 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 
         ##~~ GCode Received hook
 
-        def mesh_level_check(self, comm, line, *args, **kwargs):
-            if re.match(r"^(  -?\d+.\d+)+$", line):
-                self.mesh_level_responses.append(line)
-                self._logger.info("FOUND: " + line)
-                self.mesh_level_generate()
-                return line
-            elif line.startswith("mesh_map_output"):
-                klipper_json_line = line
-                self._logger.info("Klipper meme aquired. Ready the matplotlibs: " + line)
-                self.generate_graph_klipper_mode(klipper_json_line)
-                return line
-            else:
-                return line
+    def mesh_level_check(self, comm, line, *args, **kwargs):
+        if re.match(r"^(  -?\d+.\d+)+$", line):
+					self.mesh_level_responses.append(line)
+					self._logger.info("FOUND: " + line)\
+					self.mesh_level_generate()
+					return line
+				elif line.startswith("mesh_map_output"):
+					klipper_json_line = line
+					self._logger.info("Klipper meme aquired. Ready the matplotlibs: " + line)
+					self.generate_graph_klipper_mode(klipper_json_line)
+					return line
+				else:
+					return line
 
         # Klipper mode heatmap generation. Above brig's stuff because it's better :D 
 
-        def generate_graph_klipper_mode(self,klipper_json_line):
+    def generate_graph_klipper_mode(self,klipper_json_line):
             #Remove the first 16 charicters of the line and import to a dictionary
-            klipper_json_line = klipper_json_line[16:] 
-            jsonDict = json.loads(klipper_json_line)
-            xyOffset = jsonDict["xy_offset"] 
-            minPoints = jsonDict["min_point"]
+        klipper_json_line = klipper_json_line[16:] 
+        jsonDict = json.loads(klipper_json_line)
+        xyOffset = jsonDict["xy_offset"] 
+        minPoints = jsonDict["min_point"]
             
             #Set up minimum and max points, arrays, math, etc
-            minPoints[0]=minPoints[0]+xyOffset[0]
-            minPoints[1]=minPoints[1]+xyOffset[1]
-            maxPoints = (jsonDict["max_point"])
-            maxPoints[0]=maxPoints[0]+xyOffset[0]
-            maxPoints[1]=maxPoints[1]+xyOffset[1]
-            z_positions= np.array(jsonDict["z_positions"])
-            z_positions_shape = z_positions.shape
-            minMax = [minPoints[0],maxPoints[0],minPoints[1],maxPoints[1]]
-            probeSpacingX = (maxPoints[0]-minPoints[0])/(z_positions_shape[1]-1)    
-            probeSpacingY = (maxPoints[1]-minPoints[1])/(z_positions_shape[0]-1)
+        minPoints[0]=minPoints[0]+xyOffset[0]
+        minPoints[1]=minPoints[1]+xyOffset[1]
+        maxPoints = (jsonDict["max_point"])
+        maxPoints[0]=maxPoints[0]+xyOffset[0]
+        maxPoints[1]=maxPoints[1]+xyOffset[1]
+        z_positions= np.array(jsonDict["z_positions"])
+        z_positions_shape = z_positions.shape
+        minMax = [minPoints[0],maxPoints[0],minPoints[1],maxPoints[1]]
+        probeSpacingX = (maxPoints[0]-minPoints[0])/(z_positions_shape[1]-1)    
+        probeSpacingY = (maxPoints[1]-minPoints[1])/(z_positions_shape[0]-1)
             
             #Variables shamelessly reused from the stock FW code
-            BED_SIZE_X = 250
-            BED_SIZE_Y = 210
-            BED_PRINT_ZERO_REF_X = 2
-            BED_PRINT_ZERO_REF_Y = 9.4
-            SHEET_OFFS_X = 0
-            SHEET_OFFS_Y = 0
-            SHEET_MARGIN_LEFT = 0
-            SHEET_MARGIN_RIGHT = 0
-            SHEET_MARGIN_FRONT = 17
-            SHEET_MARGIN_BACK = 14
-            sheet_left_x = -(SHEET_MARGIN_LEFT + SHEET_OFFS_X)
-            sheet_right_x = sheet_left_x + BED_SIZE_X + SHEET_MARGIN_LEFT + SHEET_MARGIN_RIGHT
-            sheet_front_y = -(SHEET_MARGIN_FRONT + SHEET_OFFS_Y)
-            sheet_back_y = sheet_front_y + BED_SIZE_Y + SHEET_MARGIN_FRONT + SHEET_MARGIN_BACK
+        BED_SIZE_X = 250
+        BED_SIZE_Y = 210
+        BED_PRINT_ZERO_REF_X = 2
+        BED_PRINT_ZERO_REF_Y = 9.4
+        SHEET_OFFS_X = 0
+        SHEET_OFFS_Y = 0
+				SHEET_MARGIN_LEFT = 0
+				SHEET_MARGIN_RIGHT = 0
+				SHEET_MARGIN_FRONT = 17
+				SHEET_MARGIN_BACK = 14
+				sheet_left_x = -(SHEET_MARGIN_LEFT + SHEET_OFFS_X)
+				sheet_right_x = sheet_left_x + BED_SIZE_X + SHEET_MARGIN_LEFT + SHEET_MARGIN_RIGHT
+				sheet_front_y = -(SHEET_MARGIN_FRONT + SHEET_OFFS_Y)
+				sheet_back_y = sheet_front_y + BED_SIZE_Y + SHEET_MARGIN_FRONT + SHEET_MARGIN_BACK
 
             #Define probe points to plot and meshgridify them
-            x=np.linspace(minPoints[0],maxPoints[0],z_positions_shape[1],endpoint=True)
-            y=np.linspace(minPoints[1],maxPoints[1],z_positions_shape[0],endpoint=True)
-            x, y = np.meshgrid(x,y)
+        x=np.linspace(minPoints[0],maxPoints[0],z_positions_shape[1],endpoint=True)
+				y=np.linspace(minPoints[1],maxPoints[1],z_positions_shape[0],endpoint=True)
+				x, y = np.meshgrid(x,y)
         
             #Plot all of the things, including the mk52 back
-            img = mpimg.imread(r'C:\Users\matth\Documents\GitHub\OctoPrint-PrusaMeshMap\octoprint_PrusaMeshMap\static\img\mk52_steel_sheet.png')
-            plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap('viridis'))
+        img = mpimg.imread(r'C:\Users\matth\Documents\GitHub\OctoPrint-PrusaMeshMap\octoprint_PrusaMeshMap\static\img\mk52_steel_sheet.png')
+        plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap('viridis'))
             
             #plot the interpolated mesh, bar, and probed points
-            image = plt.imshow(z_positions,interpolation='bicubic',cmap='viridis',extent=minMax)#Plot the background    
-            plt.colorbar(image,label="Measured Level (mm)")#Color bar on the side
-            plt.scatter(x,y,color='r')#Scatterplot of probed points
+        image = plt.imshow(z_positions,interpolation='bicubic',cmap='viridis',extent=minMax)#Plot the background    
+				plt.colorbar(image,label="Measured Level (mm)")#Color bar on the side
+				plt.scatter(x,y,color='r')#Scatterplot of probed points
             
             #Add fancy titles
-            plt.title("Mesh Level: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-            plt.xlabel("X Axis (mm)")
-            plt.ylabel("Y Axis (mm)")
+        plt.title("Mesh Level: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        plt.xlabel("X Axis (mm)")
+				plt.ylabel("Y Axis (mm)")
             
             # Save our graph as an image in the current directory.
-            fig.savefig(self.get_asset_folder() + '/img/heatmap.png', bbox_inches="tight")
-            self._logger.info("Heatmap updated")
+        fig.savefig(self.get_asset_folder() + '/img/heatmap.png', bbox_inches="tight")
+        self._logger.info("Heatmap updated")
         
         
         ##~~ Mesh Bed Level Heatmap Generation
 
-        mesh_level_responses = []
+    mesh_level_responses = []
 
-        def mesh_level_generate(self):
+    def mesh_level_generate(self):
 
             # We work with coordinates relative to the dashed line on the
             # skilkscreen on the MK52 heatbed: print area coordinates. Note
@@ -173,71 +173,69 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
             # Points are measured from the middle of the PINDA / middle of the
             # 4 probe circles on the MK52.
 
-            MESH_NUM_POINTS_X = 7
-            MESH_NUM_MEASURED_POINTS_X = 3
-            MESH_NUM_POINTS_Y = 7
-            MESH_NUM_MEASURED_POINTS_Y = 3
-            BED_SIZE_X = 250
-            BED_SIZE_Y = 210
+        MESH_NUM_POINTS_X = 7
+        MESH_NUM_MEASURED_POINTS_X = 3
+        MESH_NUM_POINTS_Y = 7
+        MESH_NUM_MEASURED_POINTS_Y = 3
+        BED_SIZE_X = 250
+        BED_SIZE_Y = 210
 
             # These values come from mesh_bed_calibration.cpp
-            BED_PRINT_ZERO_REF_X = 2
-            BED_PRINT_ZERO_REF_Y = 9.4
+        BED_PRINT_ZERO_REF_X = 2
+        BED_PRINT_ZERO_REF_Y = 9.4
 
             # Mesh probe points, in print area coordinates
             # We assume points are symmetrical (i.e a rectangular grid)
-            MESH_FRONT_LEFT_X = 37 - BED_PRINT_ZERO_REF_X
-            MESH_FRONT_LEFT_Y = 18.4 - BED_PRINT_ZERO_REF_Y
+        MESH_FRONT_LEFT_X = 37 - BED_PRINT_ZERO_REF_X
+        MESH_FRONT_LEFT_Y = 18.4 - BED_PRINT_ZERO_REF_Y
 
-            MESH_REAR_RIGHT_X = 245 - BED_PRINT_ZERO_REF_X
-            MESH_REAR_RIGHT_Y = 210.4 - BED_PRINT_ZERO_REF_Y
+        MESH_REAR_RIGHT_X = 245 - BED_PRINT_ZERO_REF_X
+        MESH_REAR_RIGHT_Y = 210.4 - BED_PRINT_ZERO_REF_Y
 
             # Offset of the marked print area on the steel sheet relative to
             # the marked print area on the MK52. The steel sheet has margins
             # outside of the print area, so we need to account for that too.
 
-            SHEET_OFFS_X = 0
+        SHEET_OFFS_X = 0
             # Technically SHEET_OFFS_Y is -2 (sheet is BELOW (frontward to) that on the MK52)
             # However, we want to show the user a view that looks lined up with the MK52, so we
             # ignore this and set the value to zero.
-            SHEET_OFFS_Y = 0
+        SHEET_OFFS_Y = 0
                                # 
-            SHEET_MARGIN_LEFT = 0
-            SHEET_MARGIN_RIGHT = 0
+        SHEET_MARGIN_LEFT = 0
+        SHEET_MARGIN_RIGHT = 0
             # The SVG of the steel sheet (up on Github) is not symmetric as the actual one is
-            SHEET_MARGIN_FRONT = 17
-            SHEET_MARGIN_BACK = 14
+        SHEET_MARGIN_FRONT = 17
+        SHEET_MARGIN_BACK = 14
 
-            sheet_left_x = -(SHEET_MARGIN_LEFT + SHEET_OFFS_X)
-            sheet_right_x = sheet_left_x + BED_SIZE_X + SHEET_MARGIN_LEFT + SHEET_MARGIN_RIGHT
-            sheet_front_y = -(SHEET_MARGIN_FRONT + SHEET_OFFS_Y)
-            sheet_back_y = sheet_front_y + BED_SIZE_Y + SHEET_MARGIN_FRONT + SHEET_MARGIN_BACK
+        sheet_left_x = -(SHEET_MARGIN_LEFT + SHEET_OFFS_X)
+        sheet_right_x = sheet_left_x + BED_SIZE_X + SHEET_MARGIN_LEFT + SHEET_MARGIN_RIGHT
+        sheet_front_y = -(SHEET_MARGIN_FRONT + SHEET_OFFS_Y)
+        sheet_back_y = sheet_front_y + BED_SIZE_Y + SHEET_MARGIN_FRONT + SHEET_MARGIN_BACK
 
 
-            mesh_range_x = MESH_REAR_RIGHT_X - MESH_FRONT_LEFT_X
-            mesh_range_y = MESH_REAR_RIGHT_Y - MESH_FRONT_LEFT_Y
+        mesh_range_x = MESH_REAR_RIGHT_X - MESH_FRONT_LEFT_X
+        mesh_range_y = MESH_REAR_RIGHT_Y - MESH_FRONT_LEFT_Y
 
-            mesh_delta_x = mesh_range_x / (MESH_NUM_POINTS_X - 1)
-            mesh_delta_y = mesh_range_y / (MESH_NUM_POINTS_Y - 1)
+        mesh_delta_x = mesh_range_x / (MESH_NUM_POINTS_X - 1)
+        mesh_delta_y = mesh_range_y / (MESH_NUM_POINTS_Y - 1)
 
             # Accumulate response lines until we have all of them
-            if len(self.mesh_level_responses) == MESH_NUM_POINTS_Y:
-
-                self._logger.info("Generating heatmap")
+        if len(self.mesh_level_responses) == MESH_NUM_POINTS_Y:
+					self._logger.info("Generating heatmap")
 
                 # TODO: Validate each row has MESH_NUM_POINTS_X values
-
-                mesh_values = []
-
+            mesh_values = []
+          
                 # Parse response lines into a 2D array of floats in row-major order
-                for response in self.mesh_level_responses:
-                    response = re.sub(r"^[ ]+", "", response)
-                    response = re.sub(r"[ ]+", ",", response)
-                    mesh_values.append([float(i) for i in response.split(",")])
+            for response in self.mesh_level_responses:
+			    response = re.sub(r"^[ ]+", "", response)
+			    response = re.sub(r"[ ]+", ",", response)
+				mesh_values.append([float(i) for i in response.split(",")])
 
                 # Generate a 2D array of the Z values in column-major order
-                col_i = 0
-                mesh_z = np.zeros(shape=(7,7))
+            col_i = 0
+            mesh_z = np.zeros(shape=(7,7))
                 for col in mesh_values:
                     row_i = 0
                     for val in col:
