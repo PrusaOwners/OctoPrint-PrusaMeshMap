@@ -18,6 +18,8 @@ import matplotlib.image as mpimg
 import re
 import octoprint.plugin
 import octoprint.printer
+import json
+
 
 class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
                          octoprint.plugin.AssetPlugin,
@@ -89,9 +91,81 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
                     self._logger.info("FOUND: " + line)
                     self.mesh_level_generate()
                     return line
-                else:
+                elif line.startswith("mesh_map_output"):
+                    klipper_json_line = line
+					self._logger.info("Klipper meme aquired. Ready the matplotlibs: " + line)
+                    self.generate_graph_klipper_mode(klipper_json_line)
+                    return line
+				else:
                     return line
 
+        # Klipper mode heatmap generation. Above brig's stuff because it's better :D 
+
+        def generate_graph_klipper_mode(self,klipper_json_line):
+            
+            klipper_json_line = klipper_json_line[16:]
+            json = json.loads(klipper_json_line)
+            xyOffset = json["xy_offset"] 
+            minPoints = json["min_point"]
+            minPoints[0]=minPoints[0]+xyOffset[0]
+            minPoints[1]=minPoints[1]+xyOffset[1]
+            maxPoints = (json["max_point"])
+            maxPoints[0]=maxPoints[0]+xyOffset[0]
+            maxPoints[1]=maxPoints[1]+xyOffset[1]
+            z_positions= np.array(json["z_positions"])
+            z_positions_shape = z_positions.shape
+            minMax = [minPoints[0],maxPoints[0],minPoints[1],maxPoints[1]]
+            probeSpacingX = (maxPoints[0]-minPoints[0])/(z_positions_shape[1]-1)	
+            probeSpacingY = (maxPoints[1]-minPoints[1])/(z_positions_shape[0]-1)
+        
+            MESH_NUM_POINTS_X = 7
+            MESH_NUM_MEASURED_POINTS_X = 3
+            MESH_NUM_POINTS_Y = 7
+            MESH_NUM_MEASURED_POINTS_Y = 3
+            BED_SIZE_X = 250
+            BED_SIZE_Y = 210
+            BED_PRINT_ZERO_REF_X = 2
+            BED_PRINT_ZERO_REF_Y = 9.4
+            MESH_FRONT_LEFT_X = 37 - BED_PRINT_ZERO_REF_X
+            MESH_FRONT_LEFT_Y = 18.4 - BED_PRINT_ZERO_REF_Y
+            MESH_REAR_RIGHT_X = 245 - BED_PRINT_ZERO_REF_X
+            MESH_REAR_RIGHT_Y = 210.4 - BED_PRINT_ZERO_REF_Y
+            SHEET_OFFS_X = 0
+            SHEET_OFFS_Y = 0
+            SHEET_MARGIN_LEFT = 0
+            SHEET_MARGIN_RIGHT = 0
+            SHEET_MARGIN_FRONT = 17
+            SHEET_MARGIN_BACK = 14
+            sheet_left_x = -(SHEET_MARGIN_LEFT + SHEET_OFFS_X)
+            sheet_right_x = sheet_left_x + BED_SIZE_X + SHEET_MARGIN_LEFT + SHEET_MARGIN_RIGHT
+            sheet_front_y = -(SHEET_MARGIN_FRONT + SHEET_OFFS_Y)
+            sheet_back_y = sheet_front_y + BED_SIZE_Y + SHEET_MARGIN_FRONT + SHEET_MARGIN_BACK
+
+
+            #Define probe points to plot and meshgridify them
+            x=np.linspace(minPoints[0],maxPoints[0],z_positions_shape[1],endpoint=True)
+            y=np.linspace(minPoints[1],maxPoints[1],z_positions_shape[0],endpoint=True)
+            x, y = np.meshgrid(x,y)
+        
+            #Plot all of the things
+            img = mpimg.imread(r'C:\Users\matth\Documents\GitHub\OctoPrint-PrusaMeshMap\octoprint_PrusaMeshMap\static\img\mk52_steel_sheet.png')
+            plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap('viridis'))
+
+            image = plt.imshow(z_positions,interpolation='bicubic',cmap='viridis',extent=minMax)#Plot the background	
+            plt.colorbar(image,label="Measured Level (mm)")#Color bar on the side
+            plt.scatter(x,y,color='r')#Scatterplot of probed points
+            plt.title("Mesh Level: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
+            # Save our graph as an image in the current directory.
+            fig.savefig(self.get_asset_folder() + '/img/heatmap.png', bbox_inches="tight")
+            self._logger.info("Heatmap updated")
+        
+        
+        
+        
+        
+        
+        
         ##~~ Mesh Bed Level Heatmap Generation
 
         mesh_level_responses = []
