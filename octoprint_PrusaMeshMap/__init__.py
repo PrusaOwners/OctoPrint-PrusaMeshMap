@@ -89,17 +89,19 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 
 
     def mesh_level_check(self, comm, line, *args, **kwargs):
+        self._logger.info("Searching line..." + line)
         if re.match(r"^(  -?\d+.\d+)+$", line):
             self.mesh_level_responses.append(line)
             self._logger.info("FOUND: " + line)
-            self.mesh_level_generate() #meme
+            self.mesh_level_generate()
             return line
         elif line.startswith("mesh_map_output"):
-	    klipper_json_line = line
+	        klipper_json_line = line
             self._logger.info("Klipper line found. Ready the matplotlibs: " + line)
             self.generate_graph_klipper_mode(klipper_json_line)
             return line
         else:
+            self._logger.info("Line:" + line)
             return line
 
         # Klipper mode heatmap generation. Above brig's stuff because it's better :D
@@ -115,7 +117,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         xyOffset = jsonDict["xy_offset"]
         minPoints = jsonDict["min_point"]
 
-            #Set up minimum and max points, arrays, math, etc
+        #Set up minimum and max points, arrays, math, etc
         minPoints[0]=minPoints[0]+xyOffset[0]
         minPoints[1]=minPoints[1]+xyOffset[1]
         maxPoints = (jsonDict["max_point"])
@@ -127,7 +129,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         probeSpacingX = (maxPoints[0]-minPoints[0])/(z_positions_shape[1]-1)
         probeSpacingY = (maxPoints[1]-minPoints[1])/(z_positions_shape[0]-1)
 
-            #Variables shamelessly reused from the stock FW code
+        #Variables shamelessly reused from the stock FW code
         BED_SIZE_X = 250
         BED_SIZE_Y = 210
         BED_PRINT_ZERO_REF_X = 2
@@ -143,33 +145,33 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         sheet_front_y = -(SHEET_MARGIN_FRONT + SHEET_OFFS_Y)
         sheet_back_y = sheet_front_y + BED_SIZE_Y + SHEET_MARGIN_FRONT + SHEET_MARGIN_BACK
 
-            #Define probe points to plot and meshgridify them
+        #Define probe points to plot and meshgridify them
         x=np.linspace(minPoints[0],maxPoints[0],z_positions_shape[1],endpoint=True)
         y=np.linspace(minPoints[1],maxPoints[1],z_positions_shape[0],endpoint=True)
         x, y = np.meshgrid(x,y)
 
-            #Plot all of the things, including the mk52 back
+        #Plot all of the things, including the mk52 back
 
 
         if self.get_settings_defaults()["matplotlib_heatmap_background_image_style"] == "MK52 Mode":
             img = mpimg.imread(self.get_asset_folder() + '/img/mk52_steel_sheet.png')
-	#else use a different image, uhh not sure what yet
+	    #else use a different image, uhh not sure what yet
 
         plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap('viridis'))
 
 
 
-            #plot the interpolated mesh, bar, and probed points
+        #plot the interpolated mesh, bar, and probed points
         image = plt.imshow(z_positions,interpolation='bicubic',cmap='viridis',extent=minMax)#Plot the background
         plt.colorbar(image,label="Measured Level (mm)")#Color bar on the side
         plt.scatter(x,y,color='r')#Scatterplot of probed points
 
-            #Add fancy titles
+        #Add fancy titles
         plt.title("Mesh Level: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         plt.xlabel("X Axis (mm)")
         plt.ylabel("Y Axis (mm)")
 
-            # Save our graph as an image in the current directory.
+        # Save our graph as an image in the current directory.
         plt.savefig(self.get_asset_folder() + '/img/heatmap.png', bbox_inches="tight")
         #plt.savefig('/home/pi/heatmap.png', bbox_inches="tight")
 
