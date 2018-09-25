@@ -125,14 +125,14 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         z_positions= np.array(jsonDict["z_positions"])
         z_positions_shape = z_positions.shape
         minMax = [minPoints[0],maxPoints[0],minPoints[1],maxPoints[1]]
-        probeSpacingX = (maxPoints[0]-minPoints[0])/(z_positions_shape[1]-1)
-        probeSpacingY = (maxPoints[1]-minPoints[1])/(z_positions_shape[0]-1)
+        #probeSpacingX = (maxPoints[0]-minPoints[0])/(z_positions_shape[1]-1)
+        #probeSpacingY = (maxPoints[1]-minPoints[1])/(z_positions_shape[0]-1)
 
         #Variables shamelessly reused from the stock FW code
         BED_SIZE_X = 250
         BED_SIZE_Y = 210
-        BED_PRINT_ZERO_REF_X = 2
-        BED_PRINT_ZERO_REF_Y = 9.4
+        #BED_PRINT_ZERO_REF_X = 2
+        #BED_PRINT_ZERO_REF_Y = 9.4
         SHEET_OFFS_X = 0
         SHEET_OFFS_Y = 0
         SHEET_MARGIN_LEFT = 0
