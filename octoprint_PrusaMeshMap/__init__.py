@@ -150,11 +150,15 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         
             #Plot all of the things, including the mk52 back
 
+		
+	if get_settings_defaults(self)["matplotlib_heatmap_background_image_style"] == "MK52 Mode":
+            img = mpimg.imread(self.get_asset_folder() + '/img/mk52_steel_sheet.png')
+	#else use a different image, uhh not sure what yet
 
-        img = mpimg.imread(self.get_asset_folder() + '/img/mk52_steel_sheet.png')
-#img = mpimg.imread(r'C:\Users\matth\Documents\GitHub\OctoPrint-PrusaMeshMap\octoprint_PrusaMeshMap\static\img\mk52_steel_sheet.png')
-        plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap('viridis'))
+	plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap('viridis'))
             
+		
+		
             #plot the interpolated mesh, bar, and probed points
         image = plt.imshow(z_positions,interpolation='bicubic',cmap='viridis',extent=minMax)#Plot the background    
         plt.colorbar(image,label="Measured Level (mm)")#Color bar on the side
