@@ -173,8 +173,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
             standoff_X = np.linspace(standoff_min[0],standoff_max[0],standoff_count[0],endpoint=True)
             standoff_Y = np.linspace(standoff_min[1],standoff_max[1],standoff_count[1],endpoint=True)
             standoff_X, standoff_Y = np.meshgrid(standoff_X,standoff_Y)
-
-            plt.scatter(standoff_X,standoff_Y,color='b')
+            plt.scatter(standoff_X,standoff_Y,color='tab:orange')
 
         #Add fancy titles
         plt.title("Mesh Level: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
