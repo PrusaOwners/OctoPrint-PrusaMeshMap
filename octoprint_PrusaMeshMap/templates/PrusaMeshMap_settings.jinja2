@@ -10,8 +10,21 @@
             <textarea rows="4" class="block" data-bind="value: settingsViewModel.settings.plugins.PrusaMeshMap.do_level_gcode"></textarea>
         </div>
     </div>
+    
+    <h3>Heatbed Options</h3>
+    <p>
+    Specify what kind of bed you want - MK52 or a plain ol' rectangle.
+    </p>
+    <div class="control-group" title="Heatbed Style">
+        <label class="control-label" for="settings-webcamStreamRatio">Colormap</label>
+        <div class="controls">
+            <select data-bind="options: matplotlib_heatmap_theme_options, value: settingsViewModel.settings.plugins.PrusaMeshMap.matplotlib_heatmap_background_image_style"></select>
+        </div>
+    </div>
+
+    
     <h3>Heatmap Options</h3>
-    <div class="control-group" title="Aspect ratio of the webcam stream, either 16:9 or 4:3">
+    <div class="control-group" title="Color Scheme">
         <label class="control-label" for="settings-webcamStreamRatio">Colormap</label>
         <div class="controls">
             <select data-bind="options: matplotlib_heatmap_theme_options, value: settingsViewModel.settings.plugins.PrusaMeshMap.matplotlib_heatmap_theme"></select>
