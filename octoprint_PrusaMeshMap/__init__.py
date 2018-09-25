@@ -89,14 +89,14 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 
 
     def mesh_level_check(self, comm, line, *args, **kwargs):
-        self._logger.info("Searching line..." + line)
+        #self._logger.info("Searching line..." + line)
         if re.match(r"^(  -?\d+.\d+)+$", line):
             self.mesh_level_responses.append(line)
             self._logger.info("FOUND: " + line)
             self.mesh_level_generate()
             return line
         elif line.startswith("mesh_map_output"):
-            self._logger.info("Klipper line found. Ready the matplotlibs: " + line)
+            self._logger.info("Klipper bed data found. Forwarding to the processor: " + line)
             klipper_json_line = line
             self.generate_graph_klipper_mode(klipper_json_line)
             return line
@@ -145,9 +145,9 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         sheet_back_y = sheet_front_y + BED_SIZE_Y + SHEET_MARGIN_FRONT + SHEET_MARGIN_BACK
 
         #Define probe points to plot and meshgridify them
-        x=np.linspace(minPoints[0],maxPoints[0],z_positions_shape[1],endpoint=True)
-        y=np.linspace(minPoints[1],maxPoints[1],z_positions_shape[0],endpoint=True)
-        x, y = np.meshgrid(x,y)
+        xProbePoints=np.linspace(minPoints[0],maxPoints[0],z_positions_shape[1],endpoint=True)
+        yProbePoints=np.linspace(minPoints[1],maxPoints[1],z_positions_shape[0],endpoint=True)
+        xProbePoints, yProbePoints = np.meshgrid(x,y)
 
         #Plot all of the things, including the mk52 back
 
@@ -158,12 +158,21 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 
         plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap('viridis'))
 
-
+        
 
         #plot the interpolated mesh, bar, and probed points
         image = plt.imshow(z_positions,interpolation='bicubic',cmap='viridis',extent=minMax)#Plot the background
         plt.colorbar(image,label="Measured Level (mm)")#Color bar on the side
-        plt.scatter(x,y,color='r')#Scatterplot of probed points
+        plt.scatter(xProbePoints,yProbePoints,color='r')#Scatterplot of probed points
+
+        if self.get_settings_defaults()["matplotlib_heatmap_background_image_style"] == "MK52 Mode":
+            #Plot the standoffs
+            standoff_min = [15,0]
+            standoff_max = [235,210]
+            standoff_count = [3,3]
+            standoff_X = np.linspace(standoff_min[0],standoff_max[0],standoff_count[0],endpoint=True)
+            standoff_Y = np.linspace(standoff_min[1],standoff_max[1],standoff_count[1],endpoint=True)
+            plt.scatter(standoff_X,standoff_Y,color='b')
 
         #Add fancy titles
         plt.title("Mesh Level: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
