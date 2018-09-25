@@ -96,12 +96,11 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
             self.mesh_level_generate()
             return line
         elif line.startswith("mesh_map_output"):
-	        klipper_json_line = line
             self._logger.info("Klipper line found. Ready the matplotlibs: " + line)
+            klipper_json_line = line
             self.generate_graph_klipper_mode(klipper_json_line)
             return line
         else:
-            self._logger.info("Line:" + line)
             return line
 
         # Klipper mode heatmap generation. Above brig's stuff because it's better :D
@@ -110,7 +109,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 
         self._logger.info("Processing in Klipper mode...")
         #Remove the first 16 charicters of the line and import to a dictionary
-	    #use this line for testing
+        #use this line for testing
         #klipper_json_line = 'mesh_map_output {"max_point": [212.0, 204.0], "z_positions": [[-0.12499999999999833, -0.10999999999999777, -0.09750000000000203, -0.1399999999999989, -0.2200000000000043], [0.014999999999995128, 0.02749999999999797, 0.012499999999997402, -0.016249999999997766, -0.0500000000000026], [0.02749999999999797, 0.03250000000000053, 0.02875000000000394, 0.046250000000002234, 0.034999999999998255], [0.04000000000000081, 0.07750000000000223, 0.07999999999999996, 0.0787500000000011, 0.08124999999999882], [-0.01000000000000345, 0.05249999999999655, 0.11750000000000138, 0.11750000000000138, 0.10250000000000081]], "xy_offset": [24.0, 5.0], "min_point": [2.0, 0.0]}'
         klipper_json_line = klipper_json_line[16:]
         jsonDict = json.loads(klipper_json_line)
@@ -155,7 +154,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 
         if self.get_settings_defaults()["matplotlib_heatmap_background_image_style"] == "MK52 Mode":
             img = mpimg.imread(self.get_asset_folder() + '/img/mk52_steel_sheet.png')
-	    #else use a different image, uhh not sure what yet
+        #else use a different image, uhh not sure what yet
 
         plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap('viridis'))
 
@@ -241,16 +240,16 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 
             # Accumulate response lines until we have all of them
         if len(self.mesh_level_responses) == MESH_NUM_POINTS_Y:
-	    self._logger.info("Generating heatmap")
+            self._logger.info("Generating heatmap")
 
             # TODO: Validate each row has MESH_NUM_POINTS_X values
             mesh_values = []
 
                 # Parse response lines into a 2D array of floats in row-major order
             for response in self.mesh_level_responses:
-			    response = re.sub(r"^[ ]+", "", response)
-			    response = re.sub(r"[ ]+", ",", response)
-		            mesh_values.append([float(i) for i in response.split(",")])
+                response = re.sub(r"^[ ]+", "", response)
+                response = re.sub(r"[ ]+", ",", response)
+                mesh_values.append([float(i) for i in response.split(",")])
 
                 # Generate a 2D array of the Z values in column-major order
             col_i = 0
