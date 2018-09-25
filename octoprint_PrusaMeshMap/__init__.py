@@ -32,9 +32,9 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 
     def get_settings_defaults(self):
         return dict(
-                        do_level_gcode = 'G28 W ; home all without mesh bed level\nG80 ; mesh bed leveling\nG81 ; check mesh leveling results',
-                        matplotlib_heatmap_theme = 'viridis'
-			matplotlib_heatmap_background_image_style = 'MK52 Mode'
+            do_level_gcode = 'G28 W ; home all without mesh bed level\nG80 ; mesh bed leveling\nG81 ; check mesh leveling results',
+            matplotlib_heatmap_theme = 'viridis'
+            matplotlib_heatmap_background_image_style = 'MK52 Mode'
         )
 
     ##~~ AssetPlugin mixin
