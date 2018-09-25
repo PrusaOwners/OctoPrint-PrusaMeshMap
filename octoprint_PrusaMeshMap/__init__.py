@@ -147,7 +147,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         #Define probe points to plot and meshgridify them
         xProbePoints=np.linspace(minPoints[0],maxPoints[0],z_positions_shape[1],endpoint=True)
         yProbePoints=np.linspace(minPoints[1],maxPoints[1],z_positions_shape[0],endpoint=True)
-        xProbePoints, yProbePoints = np.meshgrid(x,y)
+        xProbePoints, yProbePoints = np.meshgrid(xProbePoints,yProbePoints)
 
         #Plot all of the things, including the mk52 back
 
@@ -172,6 +172,8 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
             standoff_count = [3,3]
             standoff_X = np.linspace(standoff_min[0],standoff_max[0],standoff_count[0],endpoint=True)
             standoff_Y = np.linspace(standoff_min[1],standoff_max[1],standoff_count[1],endpoint=True)
+            standoff_X, standoff_Y = np.meshgrid(standoff_X,standoff_Y)
+
             plt.scatter(standoff_X,standoff_Y,color='b')
 
         #Add fancy titles
