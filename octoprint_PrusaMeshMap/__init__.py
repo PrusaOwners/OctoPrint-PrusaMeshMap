@@ -46,9 +46,9 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
             js=["js/PrusaMeshMap.js"],
             css=["css/PrusaMeshMap.css"],
             less=["less/PrusaMeshMap.less"],
-                        img_heatmap=["img/heatmap.png"]
+            img_heatmap=["img/heatmap.png"]
         )
-                
+
     ##~~ TemplatePlugin mixin
 
         #def get_template_configs(self):
@@ -56,7 +56,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         #                dict(type="navbar", custom_bindings=False),
         #                dict(type="settings", custom_bindings=False)
         #        ]
-        
+
         ##~~ EventHandlerPlugin mixin
 
         def on_event(self, event, payload):
@@ -86,7 +86,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         )
 
         ##~~ GCode Received hook
-    
+
 
     def mesh_level_check(self, comm, line, *args, **kwargs):
         if re.match(r"^(  -?\d+.\d+)+$", line):
@@ -102,19 +102,19 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         else:
             return line
 
-        # Klipper mode heatmap generation. Above brig's stuff because it's better :D 
+        # Klipper mode heatmap generation. Above brig's stuff because it's better :D
 
     def generate_graph_klipper_mode(self,klipper_json_line):
-        
+
         self._logger.info("Processing in Klipper mode...")
         #Remove the first 16 charicters of the line and import to a dictionary
-	#use this line for testing	
+	    #use this line for testing
         #klipper_json_line = 'mesh_map_output {"max_point": [212.0, 204.0], "z_positions": [[-0.12499999999999833, -0.10999999999999777, -0.09750000000000203, -0.1399999999999989, -0.2200000000000043], [0.014999999999995128, 0.02749999999999797, 0.012499999999997402, -0.016249999999997766, -0.0500000000000026], [0.02749999999999797, 0.03250000000000053, 0.02875000000000394, 0.046250000000002234, 0.034999999999998255], [0.04000000000000081, 0.07750000000000223, 0.07999999999999996, 0.0787500000000011, 0.08124999999999882], [-0.01000000000000345, 0.05249999999999655, 0.11750000000000138, 0.11750000000000138, 0.10250000000000081]], "xy_offset": [24.0, 5.0], "min_point": [2.0, 0.0]}'
-        klipper_json_line = klipper_json_line[16:] 
+        klipper_json_line = klipper_json_line[16:]
         jsonDict = json.loads(klipper_json_line)
-        xyOffset = jsonDict["xy_offset"] 
+        xyOffset = jsonDict["xy_offset"]
         minPoints = jsonDict["min_point"]
-            
+
             #Set up minimum and max points, arrays, math, etc
         minPoints[0]=minPoints[0]+xyOffset[0]
         minPoints[1]=minPoints[1]+xyOffset[1]
@@ -124,9 +124,9 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         z_positions= np.array(jsonDict["z_positions"])
         z_positions_shape = z_positions.shape
         minMax = [minPoints[0],maxPoints[0],minPoints[1],maxPoints[1]]
-        probeSpacingX = (maxPoints[0]-minPoints[0])/(z_positions_shape[1]-1)    
+        probeSpacingX = (maxPoints[0]-minPoints[0])/(z_positions_shape[1]-1)
         probeSpacingY = (maxPoints[1]-minPoints[1])/(z_positions_shape[0]-1)
-            
+
             #Variables shamelessly reused from the stock FW code
         BED_SIZE_X = 250
         BED_SIZE_Y = 210
@@ -146,37 +146,38 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
             #Define probe points to plot and meshgridify them
         x=np.linspace(minPoints[0],maxPoints[0],z_positions_shape[1],endpoint=True)
         y=np.linspace(minPoints[1],maxPoints[1],z_positions_shape[0],endpoint=True)
-	x, y = np.meshgrid(x,y)
-        
+        x, y = np.meshgrid(x,y)
+
             #Plot all of the things, including the mk52 back
 
-		
-	if get_settings_defaults(self)["matplotlib_heatmap_background_image_style"] == "MK52 Mode":
+
+        if self.get_settings_defaults()["matplotlib_heatmap_background_image_style"] == "MK52 Mode":
             img = mpimg.imread(self.get_asset_folder() + '/img/mk52_steel_sheet.png')
 	#else use a different image, uhh not sure what yet
 
-	plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap('viridis'))
-            
-		
-		
+        plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap('viridis'))
+
+
+
             #plot the interpolated mesh, bar, and probed points
-        image = plt.imshow(z_positions,interpolation='bicubic',cmap='viridis',extent=minMax)#Plot the background    
+        image = plt.imshow(z_positions,interpolation='bicubic',cmap='viridis',extent=minMax)#Plot the background
         plt.colorbar(image,label="Measured Level (mm)")#Color bar on the side
         plt.scatter(x,y,color='r')#Scatterplot of probed points
-            
+
             #Add fancy titles
         plt.title("Mesh Level: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         plt.xlabel("X Axis (mm)")
         plt.ylabel("Y Axis (mm)")
-            
+
             # Save our graph as an image in the current directory.
         plt.savefig(self.get_asset_folder() + '/img/heatmap.png', bbox_inches="tight")
         #plt.savefig('/home/pi/heatmap.png', bbox_inches="tight")
-        
-        self._logger.info("Heatmap updated")
-        
-        
-        ##~~ Mesh Bed Level Heatmap Generation
+
+        self._logger.info("Heatmap updated in Klipper Mode")
+
+
+    ##~~ Mesh Bed Level Heatmap Generation
+    ##~~Stock firmware style
 
     mesh_level_responses = []
 
@@ -217,7 +218,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
             # However, we want to show the user a view that looks lined up with the MK52, so we
             # ignore this and set the value to zero.
         SHEET_OFFS_Y = 0
-                               # 
+                               #
         SHEET_MARGIN_LEFT = 0
         SHEET_MARGIN_RIGHT = 0
             # The SVG of the steel sheet (up on Github) is not symmetric as the actual one is
@@ -242,7 +243,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 
             # TODO: Validate each row has MESH_NUM_POINTS_X values
             mesh_values = []
-          
+
                 # Parse response lines into a 2D array of floats in row-major order
             for response in self.mesh_level_responses:
 			    response = re.sub(r"^[ ]+", "", response)
@@ -311,7 +312,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 
                 #plt.colorbar(label="Bed Variance: " + str(round(mesh_z.max() - mesh_z.min(), 3)) + "mm")
             plt.colorbar(contour, label="Measured Level (mm)")
-                
+
             plt.text(0.5, 0.43, "Total Bed Variance: " + str(bed_variance) + " (mm)", fontsize=10, horizontalalignment='center', verticalalignment='center', transform=ax.transAxes, bbox=dict(facecolor='#eeefff', alpha=0.5))
 
                 # Save our graph as an image in the current directory.
