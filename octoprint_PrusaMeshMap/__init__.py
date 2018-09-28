@@ -30,7 +30,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 
     ##~~ SettingsPlugin mixin
 
-    self.pluginTestingMode = 'True'
+    pluginTestingMode = 'True'
 
     def get_settings_defaults(self):
         return dict(
