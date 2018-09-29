@@ -107,6 +107,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
             self._logger.info("Processing in Testing mode")
             klipper_json_line = line
             self.generate_graph_klipper_mode(klipper_json_line)
+        and:
         else:
             return line
 
