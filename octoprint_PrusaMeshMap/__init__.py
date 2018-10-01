@@ -161,7 +161,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         #Plot all of the things, including the mk52 back
         plt.gcf().clear()
 
-        plt.subplot(211, sharex=True)
+        plt.subplot(211)
 
         if self.get_settings_defaults()["matplotlib_heatmap_background_image_style"] == "MK52 Mode":
             img = mpimg.imread(self.get_asset_folder() + '/img/mk52_steel_sheet.png')
@@ -191,7 +191,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         plt.ylabel("Y Axis (mm)")
 
         #Plot the second graph here
-        plt.subplot(212, sharex=True)
+        plt.subplot(212)
 
         if self.get_settings_defaults()["matplotlib_heatmap_background_image_style"] == "MK52 Mode":
             img = mpimg.imread(self.get_asset_folder() + '/img/mk52_steel_sheet.png')
@@ -231,7 +231,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 
         
         plt.gcf().clear()
-
+        plt.tight_layout()
         self._logger.info("Heatmap updated in Klipper Mode")
 
 
