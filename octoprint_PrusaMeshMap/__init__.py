@@ -201,7 +201,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap('viridis'))
 
         #Plot with fancy contourf
-        contour = plt.contourf(xProbePoints, yProbePoints, z_positions, alpha=.75, antialiased=True, cmap=plt.cm.get_cmap(self._settings.get(["matplotlib_heatmap_theme"])))
+        contour = plt.contourf(xProbePoints, yProbePoints[::-1], z_positions, alpha=.75, antialiased=True, cmap=plt.cm.get_cmap(self._settings.get(["matplotlib_heatmap_theme"])))
         plt.scatter(xProbePoints,yProbePoints,color='r')#Scatterplot of probed points\
         plt.colorbar(contour, label="Measured Level (mm)")
 
