@@ -161,7 +161,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         #Plot all of the things, including the mk52 back
         plt.gcf().clear()
 
-        plt.subplot(211)
+        plt.subplot(211, sharex=True)
 
         if self.get_settings_defaults()["matplotlib_heatmap_background_image_style"] == "MK52 Mode":
             img = mpimg.imread(self.get_asset_folder() + '/img/mk52_steel_sheet.png')
@@ -191,7 +191,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         plt.ylabel("Y Axis (mm)")
 
         #Plot the second graph here
-        plt.subplot(212)
+        plt.subplot(212, sharex=True)
 
         if self.get_settings_defaults()["matplotlib_heatmap_background_image_style"] == "MK52 Mode":
             img = mpimg.imread(self.get_asset_folder() + '/img/mk52_steel_sheet.png')
@@ -219,7 +219,10 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         plt.xlabel("X Axis (mm)")
         plt.ylabel("Y Axis (mm)")
 
+
+
         # Save our graph as an image in the current directory.
+        plt.tight_layout()
         plt.savefig(self.get_asset_folder() + '/img/heatmap.png', bbox_inches="tight")
         #plt.savefig('/home/pi/heatmap.png', bbox_inches="tight")
         
