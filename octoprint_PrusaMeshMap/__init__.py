@@ -194,7 +194,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         plt.subplot(212)
 
         contour = plt.contourf(xProbePoints, yProbePoints, z_positions, alpha=.75, antialiased=True, cmap=plt.cm.get_cmap(self._settings.get(["matplotlib_heatmap_theme"])))
-        
+        plt.colorbar(contour, label="Measured Level (mm)")
 
         # Save our graph as an image in the current directory.
         plt.savefig(self.get_asset_folder() + '/img/heatmap.png', bbox_inches="tight")
