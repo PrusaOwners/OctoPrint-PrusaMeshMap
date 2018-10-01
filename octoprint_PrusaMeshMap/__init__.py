@@ -129,9 +129,9 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         minPoints[0]=minPoints[0]+xyOffset[0]
         minPoints[1]=minPoints[1]+xyOffset[1]
         maxPoints = (jsonDict["max_point"])
-        maxPoints[0]=maxPoints[0]+xyOffset[0]
-        maxPoints[1]=maxPoints[1]+xyOffset[1]
-        z_positions= np.array(jsonDict["z_positions"])
+        maxPoints[0] = maxPoints[0]+xyOffset[0]
+        maxPoints[1] = maxPoints[1]+xyOffset[1]
+        z_positions = np.array(jsonDict["z_positions"])
         z_positions_shape = z_positions.shape
         minMax = [minPoints[0],maxPoints[0],minPoints[1],maxPoints[1]]
         #probeSpacingX = (maxPoints[0]-minPoints[0])/(z_positions_shape[1]-1)
@@ -161,12 +161,13 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         #Plot all of the things, including the mk52 back
         plt.gcf().clear()
 
+        plt.subplot(211)
+
         if self.get_settings_defaults()["matplotlib_heatmap_background_image_style"] == "MK52 Mode":
             img = mpimg.imread(self.get_asset_folder() + '/img/mk52_steel_sheet.png')
         #else use a different image, uhh not sure what yet
 
         plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap('viridis'))
-
         
 
         #plot the interpolated mesh, bar, and probed points
@@ -189,9 +190,20 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         plt.xlabel("X Axis (mm)")
         plt.ylabel("Y Axis (mm)")
 
+        #Plot the second graph here
+        plt.subplot(212)
+
+        contour = plt.contourf(xProbePoints, yProbePoints, z_positions, alpha=.75, antialiased=True, cmap=plt.cm.get_cmap(self._settings.get(["matplotlib_heatmap_theme"])))
+        
+
         # Save our graph as an image in the current directory.
         plt.savefig(self.get_asset_folder() + '/img/heatmap.png', bbox_inches="tight")
         #plt.savefig('/home/pi/heatmap.png', bbox_inches="tight")
+        
+
+
+
+        
         plt.gcf().clear()
 
         self._logger.info("Heatmap updated in Klipper Mode")
