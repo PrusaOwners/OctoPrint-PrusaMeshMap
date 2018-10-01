@@ -197,14 +197,24 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
             img = mpimg.imread(self.get_asset_folder() + '/img/mk52_steel_sheet.png')
         #else use a different image, uhh not sure what yet
 
-        #Plot both the mk52 sheet as well as probed points in scatter plot
+        #Plot both the mk52 sheet
         plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap('viridis'))
-        plt.scatter(xProbePoints,yProbePoints,color='r')#Scatterplot of probed points
 
         #Plot with fancy contourf
         contour = plt.contourf(xProbePoints, yProbePoints, z_positions, alpha=.75, antialiased=True, cmap=plt.cm.get_cmap(self._settings.get(["matplotlib_heatmap_theme"])))
+        plt.scatter(xProbePoints,yProbePoints,color='r')#Scatterplot of probed points\
         plt.colorbar(contour, label="Measured Level (mm)")
-        
+
+        if self.get_settings_defaults()["matplotlib_heatmap_background_image_style"] == "MK52 Mode":
+            #Plot the standoffs
+            standoff_min = [15,0]
+            standoff_max = [235,210]
+            standoff_count = [3,3]
+            standoff_X = np.linspace(standoff_min[0],standoff_max[0],standoff_count[0],endpoint=True)
+            standoff_Y = np.linspace(standoff_min[1],standoff_max[1],standoff_count[1],endpoint=True)
+            standoff_X, standoff_Y = np.meshgrid(standoff_X,standoff_Y)
+            plt.scatter(standoff_X,standoff_Y,color='tab:orange')
+
         #Labe axis
         plt.xlabel("X Axis (mm)")
         plt.ylabel("Y Axis (mm)")
