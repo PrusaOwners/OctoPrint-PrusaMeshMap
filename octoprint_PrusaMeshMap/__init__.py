@@ -193,8 +193,21 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         #Plot the second graph here
         plt.subplot(212)
 
+        if self.get_settings_defaults()["matplotlib_heatmap_background_image_style"] == "MK52 Mode":
+            img = mpimg.imread(self.get_asset_folder() + '/img/mk52_steel_sheet.png')
+        #else use a different image, uhh not sure what yet
+
+        #Plot both the mk52 sheet as well as probed points in scatter plot
+        plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap('viridis'))
+        plt.scatter(xProbePoints,yProbePoints,color='r')#Scatterplot of probed points
+
+        #Plot with fancy contourf
         contour = plt.contourf(xProbePoints, yProbePoints, z_positions, alpha=.75, antialiased=True, cmap=plt.cm.get_cmap(self._settings.get(["matplotlib_heatmap_theme"])))
         plt.colorbar(contour, label="Measured Level (mm)")
+        
+        #Labe axis
+        plt.xlabel("X Axis (mm)")
+        plt.ylabel("Y Axis (mm)")
 
         # Save our graph as an image in the current directory.
         plt.savefig(self.get_asset_folder() + '/img/heatmap.png', bbox_inches="tight")
