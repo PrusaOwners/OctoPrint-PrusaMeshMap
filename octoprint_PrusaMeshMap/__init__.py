@@ -192,6 +192,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         # Save our graph as an image in the current directory.
         plt.savefig(self.get_asset_folder() + '/img/heatmap.png', bbox_inches="tight")
         #plt.savefig('/home/pi/heatmap.png', bbox_inches="tight")
+        plt.gcf().clear()
 
         self._logger.info("Heatmap updated in Klipper Mode")
 
