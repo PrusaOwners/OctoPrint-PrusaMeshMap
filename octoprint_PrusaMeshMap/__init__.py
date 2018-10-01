@@ -159,7 +159,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         xProbePoints, yProbePoints = np.meshgrid(xProbePoints,yProbePoints)
 
         #Plot all of the things, including the mk52 back
-
+        plt.gcf().clear()
 
         if self.get_settings_defaults()["matplotlib_heatmap_background_image_style"] == "MK52 Mode":
             img = mpimg.imread(self.get_asset_folder() + '/img/mk52_steel_sheet.png')
