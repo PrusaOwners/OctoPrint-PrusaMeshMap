@@ -22,7 +22,19 @@
         </div>
     </div>
 
+    <h3>Output Options</h3>
+    <p>
+    Specify the appearence of the graph. You can use Bicubic, topology (contourf) or both.
+    </p>
+    <div class="control-group" title="Output Options">
+        <label class="control-label" for="output mode">Colormap</label>
+        <div class="controls">
+            <select data-bind="options: output_mode, value: settingsViewModel.settings.plugins.PrusaMeshMap.output_mode"></select>
+        </div>
+    </div>
     
+    
+
     <h3>Heatmap Options</h3>
     <div class="control-group" title="Color Scheme">
         <label class="control-label" for="settings-webcamStreamRatio">Colormap</label>

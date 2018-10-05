@@ -36,9 +36,19 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         return dict(
             do_level_gcode = 'bed_mesh_map',
             matplotlib_heatmap_theme = 'viridis',
-            matplotlib_heatmap_background_image_style = 'MK52 Mode'
+            matplotlib_heatmap_background_image_style = 'MK52 Mode',
+            output_mode = 'ContourF Topology Map'
             
         )
+    def get_current_settings(self):
+        return dict(
+            do_level_gcode=self._settings.get(["do_level_gcode"]),
+            matplotlib_heatmap_theme = self._settings.get(["matplotlib_heatmap_theme"]),
+            matplotlib_heatmap_background_image_style = self._settings.get(["matplotlib_heatmap_background_image_style"]),
+            output_mode = self._settings.get(["output_mode"])
+            
+        )    
+
 
     ##~~ AssetPlugin mixin
 
@@ -161,21 +171,29 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         #Plot all of the things, including the mk52 back
         plt.gcf().clear()
 
-        plt.subplot(211)
+        #Put the date at the top
+        plt.title("Mesh Level: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
-        if self.get_settings_defaults()["matplotlib_heatmap_background_image_style"] == "MK52 Mode":
+        if self.get_current_settings()["matplotlib_heatmap_background_image_style"] == "MK52 Mode":
             img = mpimg.imread(self.get_asset_folder() + '/img/mk52_steel_sheet.png')
         #else use a different image, uhh not sure what yet
 
+        #Plot whichever image is selected per the above if/else
         plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap('viridis'))
         
 
         #plot the interpolated mesh, bar, and probed points
-        image = plt.imshow(z_positions,interpolation='bicubic',cmap='viridis',extent=minMax)#Plot the background
-        plt.colorbar(image,label="Measured Level (mm)")#Color bar on the side
+        #Depending on which mode you set it to
+        if self.get_current_settings()["output_mode"] == "ContourF Topology Map":
+            image = plt.imshow(z_positions,interpolation='bicubic',cmap='viridis',extent=minMax)#Plot the background
+            plt.colorbar(image,label="Measured Level (mm)")#Color bar on the side
+        if self.get_current_settings()["output_mode"] == "Bicubic Interpolation":
+            contour = plt.contourf(xProbePoints, yProbePoints[::-1], z_positions, alpha=.75, antialiased=True, cmap=plt.cm.get_cmap(self._settings.get(["matplotlib_heatmap_theme"])))
+            plt.colorbar(contour, label="Measured Level (mm)")
+        
         plt.scatter(xProbePoints,yProbePoints,color='r')#Scatterplot of probed points
 
-        if self.get_settings_defaults()["matplotlib_heatmap_background_image_style"] == "MK52 Mode":
+        if self.get_current_settings()["matplotlib_heatmap_background_image_style"] == "MK52 Mode":
             #Plot the standoffs
             standoff_min = [15,0]
             standoff_max = [235,210]
@@ -186,40 +204,14 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
             plt.scatter(standoff_X,standoff_Y,color='tab:orange')
 
         #Add fancy titles
-        plt.title("Mesh Level: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         plt.xlabel("X Axis (mm)")
         plt.ylabel("Y Axis (mm)")
 
-        #Plot the second graph here
-        plt.subplot(212)
-
-        if self.get_settings_defaults()["matplotlib_heatmap_background_image_style"] == "MK52 Mode":
-            img = mpimg.imread(self.get_asset_folder() + '/img/mk52_steel_sheet.png')
-        #else use a different image, uhh not sure what yet
-
-        #Plot both the mk52 sheet
-        plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap('viridis'))
 
         #Plot with fancy contourf
-        contour = plt.contourf(xProbePoints, yProbePoints[::-1], z_positions, alpha=.75, antialiased=True, cmap=plt.cm.get_cmap(self._settings.get(["matplotlib_heatmap_theme"])))
-        plt.scatter(xProbePoints,yProbePoints,color='r')#Scatterplot of probed points\
-        plt.colorbar(contour, label="Measured Level (mm)")
-
-        if self.get_settings_defaults()["matplotlib_heatmap_background_image_style"] == "MK52 Mode":
-            #Plot the standoffs
-            standoff_min = [15,0]
-            standoff_max = [235,210]
-            standoff_count = [3,3]
-            standoff_X = np.linspace(standoff_min[0],standoff_max[0],standoff_count[0],endpoint=True)
-            standoff_Y = np.linspace(standoff_min[1],standoff_max[1],standoff_count[1],endpoint=True)
-            standoff_X, standoff_Y = np.meshgrid(standoff_X,standoff_Y)
-            plt.scatter(standoff_X,standoff_Y,color='tab:orange')
-
-        #Labe axis
-        plt.xlabel("X Axis (mm)")
-        plt.ylabel("Y Axis (mm)")
 
 
+        
 
         # Save our graph as an image in the current directory.
         
