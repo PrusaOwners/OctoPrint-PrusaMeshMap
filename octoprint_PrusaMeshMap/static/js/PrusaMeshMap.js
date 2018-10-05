@@ -16,7 +16,8 @@ $(function() {
 	// Assign matplotlib color dropdown options
 	self.matplotlib_heatmap_theme_options = ["viridis", "plasma", "inferno", "magma"];
     self.matplotlib_heatmap_background_image_style = ["MK52 Mode", "Generic Klipper Mode"];
-    self.output_mode - ["Bicubic Interpolation", "ContourF Topology Map"];
+    self.output_mode = ["Bicubic Interpolation", "ContourF Topology Map"];
+    self.pluginTestingMode = ["True", "False"];
 
         // TODO: Implement your plugin's view model here.
         self.sendPrusaBedLevel = function() {

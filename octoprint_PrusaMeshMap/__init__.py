@@ -30,23 +30,23 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 
     ##~~ SettingsPlugin mixin
 
-    pluginTestingMode = 'False'
+
 
     def get_settings_defaults(self):
         return dict(
             do_level_gcode = 'bed_mesh_map',
             matplotlib_heatmap_theme = 'viridis',
             matplotlib_heatmap_background_image_style = 'MK52 Mode',
-            output_mode = 'ContourF Topology Map'
-            
+            output_mode = 'ContourF Topology Map',
+            pluginTestingMode = 'False'
         )
     def get_current_settings(self):
         return dict(
             do_level_gcode=self._settings.get(["do_level_gcode"]),
             matplotlib_heatmap_theme = self._settings.get(["matplotlib_heatmap_theme"]),
             matplotlib_heatmap_background_image_style = self._settings.get(["matplotlib_heatmap_background_image_style"]),
-            output_mode = self._settings.get(["output_mode"])
-            
+            output_mode = self._settings.get(["output_mode"]),
+            pluginTestingMode = self._settings.get(["pluginTestingMode"])
         )    
 
 
