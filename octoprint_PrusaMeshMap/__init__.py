@@ -185,11 +185,12 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         #plot the interpolated mesh, bar, and probed points
         #Depending on which mode you set it to
         if self.get_current_settings()["output_mode"] == "ContourF Topology Map":
-            image = plt.imshow(z_positions,interpolation='bicubic',cmap='viridis',extent=minMax)#Plot the background
+            image = plt.imshow(np.flip(z_positions,axis=1),interpolation='bicubic',cmap='viridis',extent=minMax)#Plot the background
             plt.colorbar(image,label="Measured Level (mm)")#Color bar on the side
         if self.get_current_settings()["output_mode"] == "Bicubic Interpolation":
-            contour = plt.contourf(xProbePoints, yProbePoints[::-1], z_positions, alpha=.75, antialiased=True, cmap=plt.cm.get_cmap(self._settings.get(["matplotlib_heatmap_theme"])))
+            contour = plt.contourf(xProbePoints, yProbePoints, z_positions, alpha=.75, antialiased=True, cmap=plt.cm.get_cmap(self._settings.get(["matplotlib_heatmap_theme"])))
             plt.colorbar(contour, label="Measured Level (mm)")
+            #If you need to invert the data, use [::-1]
         
         plt.scatter(xProbePoints,yProbePoints,color='r')#Scatterplot of probed points
 
