@@ -10,6 +10,8 @@ from __future__ import absolute_import
 # Take a look at the documentation on what other plugin mixins are available.
 
 import datetime
+from fractions import Fraction
+
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
@@ -19,6 +21,26 @@ import re
 import octoprint.plugin
 import octoprint.printer
 
+# This is based on code from https://github.com/pcboy/g81_relative
+def convertDistanceToDegrees(distance):
+    screw_pitch = 0.5
+    deg = distance/screw_pitch*360
+    dir = "CCW"
+    if deg > 0:
+        dir = "CW"
+    return "{} deg {}".format( abs(round(deg)), dir)
+
+def convertDistanceToFractionalTurns(distance):
+    screw_pitch = 0.5
+    rat = round(Fraction(distance/screw_pitch),2)
+    if rat == 0/1:
+        rat = 0
+    dir = "CCW"
+    if rat > 0:
+        dir = "CW"
+
+    return "{} {}".format( abs(rat), dir )
+    
 class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
                          octoprint.plugin.AssetPlugin,
                          octoprint.plugin.TemplatePlugin,
@@ -81,12 +103,32 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 			)
 		)
 
+        def test(self):
+            data = """Recv:   0.13250  0.13778  0.14194  0.14500  0.14694  0.14778  0.14750
+Recv:   0.14361  0.14097  0.13979  0.14009  0.14186  0.14510  0.14981
+Recv:   0.15083  0.14251  0.13754  0.13593  0.13766  0.14276  0.15120
+Recv:   0.15417  0.14241  0.13519  0.13250  0.13435  0.14074  0.15167
+Recv:   0.15361  0.14066  0.13273  0.12981  0.13192  0.13905  0.15120
+Recv:   0.14917  0.13726  0.13016  0.12787  0.13038  0.13770  0.14981
+Recv:   0.14083  0.13222  0.12750  0.12667  0.12972  0.13667  0.14750
+"""
+            lines = data.replace( "Recv: ", "").split( "\n" )
+
+            for line in lines:
+                self.mesh_level_check( None, line )
+
+        # Uncomment the below to test on startup
+        #def get_template_vars(self):
+        #    self.test()
+        #    return []
+
+
         ##~~ GCode Received hook
 
         def mesh_level_check(self, comm, line, *args, **kwargs):
                 if re.match(r"^(  -?\d+.\d+)+$", line):
                     self.mesh_level_responses.append(line)
-                    self._logger.info("FOUND: " + line)
+                    #self._logger.info("FOUND: " + line)
                     self.mesh_level_generate()
                     return line
                 else:
@@ -95,6 +137,42 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
         ##~~ Mesh Bed Level Heatmap Generation
 
         mesh_level_responses = []
+
+                        
+        # Converts outut of G81 (bed leveling) to relative with center point 0
+        # This is based on code from https://github.com/pcboy/g81_relative
+        def processPoints( self, mesh_values ):
+
+            print( "{}\t{}\t{}".format( mesh_values[0][0], mesh_values[0][3], mesh_values[0][6] ) )
+            print( "{}\t{}\t{}".format( mesh_values[3][0], mesh_values[3][3], mesh_values[3][6] ) )
+            print( "{}\t{}\t{}".format( mesh_values[6][0], mesh_values[6][3], mesh_values[6][6] ) )
+
+            # Convert values to relative offsets from the middle
+            middle = float(mesh_values[3][3])
+            top_left = round(float(mesh_values[0][0]) - middle, 2)
+            top_center = round(float(mesh_values[0][3]) - middle, 2)
+            top_right = round(float(mesh_values[0][6]) - middle, 2)
+            middle_left = round(float(mesh_values[3][0]) - middle, 2)
+            middle_right = round(float(mesh_values[3][6]) - middle, 2)
+            bottom_left = round(float(mesh_values[6][0]) - middle, 2)
+            bottom_center = round(float(mesh_values[6][3]) - middle, 2)
+            bottom_right = round(float(mesh_values[6][6]) - middle, 2)
+
+            ro1 = "Relative offset"
+            ro2 = "{}\n{}\n{}".format( top_left, middle_left, bottom_left )
+            ro3 = "{}\n{}\n{}".format( top_center, 0, bottom_center )
+            ro4 = "{}\n{}\n{}".format( top_right, middle_right, bottom_right )
+
+            ad1 = "Adjustment Degrees"
+            ad2 = "{}\n{}\n{}".format( convertDistanceToDegrees(top_left), convertDistanceToDegrees(middle_left), convertDistanceToDegrees(bottom_left) )
+            ad3 = "{}\n{}\n{}".format( convertDistanceToDegrees(top_center), 0, convertDistanceToDegrees(bottom_center) )
+            ad4 = "{}\n{}\n{}".format( convertDistanceToDegrees(top_right), convertDistanceToDegrees(middle_right), convertDistanceToDegrees(bottom_right) )
+
+            aft1 = "Adjustment Fractional Turns"
+            aft2 = "{}\n{}\n{}".format( convertDistanceToFractionalTurns(top_left), convertDistanceToFractionalTurns(middle_left), convertDistanceToFractionalTurns(bottom_left) )
+            aft3 = "{}\n{}\n{}".format( convertDistanceToFractionalTurns(top_center), 0, convertDistanceToFractionalTurns(bottom_center) )
+            aft4 = "{}\n{}\n{}".format( convertDistanceToFractionalTurns(top_right), convertDistanceToFractionalTurns(middle_right), convertDistanceToFractionalTurns(bottom_right) )
+            return [[ro1, ro2, ro3, ro4], [ad1, ad2, ad3, ad4], [aft1, aft2, aft3, aft4]]
 
         def mesh_level_generate(self):
 
@@ -167,6 +245,8 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
                     response = re.sub(r"[ ]+", ",", response)
                     mesh_values.append([float(i) for i in response.split(",")])
 
+                adjustments = self.processPoints( mesh_values )
+
                 # Generate a 2D array of the Z values in column-major order
                 col_i = 0
                 mesh_z = np.zeros(shape=(7,7))
@@ -232,6 +312,21 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
                 
                 plt.text(0.5, 0.43, "Total Bed Variance: " + str(bed_variance) + " (mm)", fontsize=10, horizontalalignment='center', verticalalignment='center', transform=ax.transAxes, bbox=dict(facecolor='#eeefff', alpha=0.5))
 
+                # Display the adjustments below the graph
+                plt.figtext(0.1, 0.03, adjustments[0][0], fontWeight="semibold") 
+                plt.figtext(0.1, -0.03, adjustments[0][1]) 
+                plt.figtext(0.15, -0.03, adjustments[0][2]) 
+                plt.figtext(0.20, -0.03, adjustments[0][3]) 
+
+                plt.figtext(0.32, 0.03, adjustments[1][0], fontWeight="semibold") 
+                plt.figtext(0.32, -0.03, adjustments[1][1]) 
+                plt.figtext(0.44, -0.03, adjustments[1][2]) 
+                plt.figtext(0.56, -0.03, adjustments[1][3]) 
+                
+                plt.figtext(0.7, 0.03, adjustments[2][0], fontWeight="semibold") 
+                plt.figtext(0.7, -0.03, adjustments[2][1]) 
+                plt.figtext(0.78, -0.03, adjustments[2][2]) 
+                plt.figtext(0.86, -0.03, adjustments[2][3]) 
                 # Save our graph as an image in the current directory.
                 fig.savefig(self.get_asset_folder() + '/img/heatmap.png', bbox_inches="tight")
                 self._logger.info("Heatmap updated")
