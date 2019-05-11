@@ -128,7 +128,6 @@ Recv:   0.14083  0.13222  0.12750  0.12667  0.12972  0.13667  0.14750
         def mesh_level_check(self, comm, line, *args, **kwargs):
                 if re.match(r"^(  -?\d+.\d+)+$", line):
                     self.mesh_level_responses.append(line)
-                    #self._logger.info("FOUND: " + line)
                     self.mesh_level_generate()
                     return line
                 else:
@@ -143,9 +142,9 @@ Recv:   0.14083  0.13222  0.12750  0.12667  0.12972  0.13667  0.14750
         # This is based on code from https://github.com/pcboy/g81_relative
         def processPoints( self, mesh_values ):
 
-            print( "{}\t{}\t{}".format( mesh_values[0][0], mesh_values[0][3], mesh_values[0][6] ) )
-            print( "{}\t{}\t{}".format( mesh_values[3][0], mesh_values[3][3], mesh_values[3][6] ) )
-            print( "{}\t{}\t{}".format( mesh_values[6][0], mesh_values[6][3], mesh_values[6][6] ) )
+            #self._logger.debug( "{}\t{}\t{}".format( mesh_values[0][0], mesh_values[0][3], mesh_values[0][6] ) )
+            #self._logger.debug( "{}\t{}\t{}".format( mesh_values[3][0], mesh_values[3][3], mesh_values[3][6] ) )
+            #self._logger.debug( "{}\t{}\t{}".format( mesh_values[6][0], mesh_values[6][3], mesh_values[6][6] ) )
 
             # Convert values to relative offsets from the middle
             middle = float(mesh_values[3][3])
