@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.1
+
+** Added display of what adjustments need to be made to graph
+
 ## v0.2.1
 
 **Bug Fixes:**
