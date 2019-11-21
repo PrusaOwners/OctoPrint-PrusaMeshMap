@@ -10,8 +10,44 @@
             <textarea rows="4" class="block" data-bind="value: settingsViewModel.settings.plugins.PrusaMeshMap.do_level_gcode"></textarea>
         </div>
     </div>
+    
+    <h3>Heatbed Options</h3>
+    <p>
+    Specify what kind of bed you want - MK52 or a plain ol' rectangle.
+    </p>
+    <div class="control-group" title="Heatbed Style">
+        <label class="control-label" for="settings-webcamStreamRatio">matplotlib_heatmap_background_image_style</label>
+        <div class="controls">
+            <select data-bind="options: matplotlib_heatmap_background_image_style, value: settingsViewModel.settings.plugins.PrusaMeshMap.matplotlib_heatmap_background_image_style"></select>
+        </div>
+    </div>
+
+    <h3>Output Options</h3>
+    <p>
+    Specify the appearence of the graph. You can use Bicubic or a "topology" map called contourf
+    </p>
+    <div class="control-group" title="output_mode">
+        <label class="control-label" for="Map Style">output_mode</label>
+        <div class="controls">
+            <select data-bind="options: output_mode, value: settingsViewModel.settings.plugins.PrusaMeshMap.output_mode"></select>
+        </div>
+    </div>
+    
+    
+
+    <h3>Testing mode</h3>
+    <p>
+    Enable Testing Mode for debugging. Or turn it off. :D
+    </p>
+    <div class="control-group" title="testing mode">
+        <label class="control-label" for="testing mode">pluginTestingMode</label>
+        <div class="controls">
+            <select data-bind="options: pluginTestingMode, value: settingsViewModel.settings.plugins.PrusaMeshMap.pluginTestingMode"></select>
+        </div>
+    </div>    
+
     <h3>Heatmap Options</h3>
-    <div class="control-group" title="Aspect ratio of the webcam stream, either 16:9 or 4:3">
+    <div class="control-group" title="Color Scheme">
         <label class="control-label" for="settings-webcamStreamRatio">Colormap</label>
         <div class="controls">
             <select data-bind="options: matplotlib_heatmap_theme_options, value: settingsViewModel.settings.plugins.PrusaMeshMap.matplotlib_heatmap_theme"></select>
