@@ -18,7 +18,7 @@ plugin_version = "0.3.0"
 
 # The plugin's description. Can be overwritten within OctoPrint's internal data via __plugin_description__ in the plugin
 # module
-plugin_description = """This plugin performs a mesh bed leveling operation then returns the results as an easy to read heatmap."""
+plugin_description = """This plugin performs a mesh bed leveling operation then returns the results as an easy to read heightmap."""
 
 # The plugin's author. Can be overwritten within OctoPrint's internal data via __plugin_author__ in the plugin module
 plugin_author = "Jake Skipper"
