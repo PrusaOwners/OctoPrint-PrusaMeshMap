@@ -30,7 +30,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 	def get_settings_defaults(self):
 		return dict(
                         do_level_gcode = 'G28 W ; home all without mesh bed level\nG80 ; mesh bed leveling\nG81 ; check mesh leveling results',
-                        matplotlib_heatmap_theme = 'viridis'
+                        matplotlib_heightmap_theme = 'viridis'
 		)
 
 	##~~ AssetPlugin mixin
@@ -42,7 +42,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 			js=["js/PrusaMeshMap.js"],
 			css=["css/PrusaMeshMap.css"],
 			less=["less/PrusaMeshMap.less"],
-                        img_heatmap=["img/heatmap.png"]
+                        img_heightmap=["img/heightmap.png"]
 		)
                 
 	##~~ TemplatePlugin mixin
@@ -92,7 +92,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
                 else:
                     return line
 
-        ##~~ Mesh Bed Level Heatmap Generation
+        ##~~ Mesh Bed Level Heightmap Generation
 
         mesh_level_responses = []
 
@@ -155,7 +155,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
             # Accumulate response lines until we have all of them
             if len(self.mesh_level_responses) == MESH_NUM_POINTS_Y:
 
-                self._logger.info("Generating heatmap")
+                self._logger.info("Generating heightmap")
 
                 # TODO: Validate each row has MESH_NUM_POINTS_X values
 
@@ -189,7 +189,7 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
                 bed_variance = round(mesh_z.max() - mesh_z.min(), 3)
 
                 ############
-                # Draw the heatmap
+                # Draw the heightmap
                 #fig = plt.figure(dpi=96, figsize=(12, 9))
                 fig = plt.figure(dpi=96, figsize=(10,8.3))
                 ax = plt.gca()
@@ -206,11 +206,11 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
 
                 # Draw the contour map. Y values are reversed to account for
                 # bottom-up orientation of plot library
-                contour = plt.contourf(mesh_x, mesh_y[::-1], mesh_z, alpha=.75, antialiased=True, cmap=plt.cm.get_cmap(self._settings.get(["matplotlib_heatmap_theme"])))
+                contour = plt.contourf(mesh_x, mesh_y[::-1], mesh_z, alpha=.75, antialiased=True, cmap=plt.cm.get_cmap(self._settings.get(["matplotlib_heightmap_theme"])))
 
                 # Insert the background image (currently an image of the MK3 PEI-coated steel sheet)
                 img = mpimg.imread(self.get_asset_folder() + '/img/mk52_steel_sheet.png')
-                plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap(self._settings.get(["matplotlib_heatmap_theme"])))
+                plt.imshow(img, extent=[sheet_left_x, sheet_right_x, sheet_front_y, sheet_back_y], interpolation="lanczos", cmap=plt.cm.get_cmap(self._settings.get(["matplotlib_heightmap_theme"])))
 
                 # Set axis ranges (although we don't currently show these...)
                 ax.set_xlim(left=sheet_left_x, right=sheet_right_x)
@@ -233,8 +233,8 @@ class PrusameshmapPlugin(octoprint.plugin.SettingsPlugin,
                 plt.text(0.5, 0.43, "Total Bed Variance: " + str(bed_variance) + " (mm)", fontsize=10, horizontalalignment='center', verticalalignment='center', transform=ax.transAxes, bbox=dict(facecolor='#eeefff', alpha=0.5))
 
                 # Save our graph as an image in the current directory.
-                fig.savefig(self.get_asset_folder() + '/img/heatmap.png', bbox_inches="tight")
-                self._logger.info("Heatmap updated")
+                fig.savefig(self.get_asset_folder() + '/img/heightmap.png', bbox_inches="tight")
+                self._logger.info("Heightmap updated")
 
                 del self.mesh_level_responses[:]
 

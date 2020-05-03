@@ -3,7 +3,7 @@ layout: plugin
 
 id: PrusaMeshMap
 title: OctoPrint-PrusaMeshMap
-description: This plugin performs a mesh bed leveling operation then returns the results as an easy to read heatmap.
+description: This plugin performs a mesh bed leveling operation then returns the results as an easy to read heightmap.
 author: Jake Skipper
 license: MIT
 

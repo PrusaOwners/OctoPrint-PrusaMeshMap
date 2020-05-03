@@ -8,7 +8,7 @@
 ## v0.2.0
 
 **New Features:**
-* Added a drop down in plugin settings to select matplotlib colormap to use on the heatmap image.
+* Added a drop down in plugin settings to select matplotlib colormap to use on the heightmap image.
 * Default colormap set to **viridis** to better align with OctoPrint's color scheme.
 * Added bed variance total to colorbar label.
 
