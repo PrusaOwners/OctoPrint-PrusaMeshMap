@@ -14,7 +14,7 @@ plugin_package = "octoprint_PrusaMeshMap"
 plugin_name = "OctoPrint-PrusaMeshMap"
 
 # The plugin's version. Can be overwritten within OctoPrint's internal data via __plugin_version__ in the plugin module
-plugin_version = "0.3.1"
+plugin_version = "0.3.2"
 
 # The plugin's description. Can be overwritten within OctoPrint's internal data via __plugin_description__ in the plugin
 # module
@@ -33,7 +33,7 @@ plugin_url = "https://github.com/ff8jake/OctoPrint-PrusaMeshMap"
 plugin_license = "MIT"
 
 # Any additional requirements besides OctoPrint should be listed here
-plugin_requires = ["matplotlib>=2.2.0", "numpy", "pyparsing", "cycler"]
+plugin_requires = ["matplotlib", "numpy", "pyparsing", "cycler"]
 
 ### --------------------------------------------------------------------------------------------------------------------
 ### More advanced options that you usually shouldn't have to touch follow after this point
