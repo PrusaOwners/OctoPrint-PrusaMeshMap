@@ -32,17 +32,18 @@ or manually using this URL:
 
     https://github.com/AndyQ/OctoPrint-PrusaMeshMap/archive/master.zip
 
+**NOTE - only Python 3 is now supported - so you will need to have upgraded to the latest OctoPrint**
 
 ### Raspberry Pi Users
 
-This plugin uses **matplotlib** and **numpy** packages from pip. Since wheels do not exist for these ARM packages in Python 2.7, they will need to compile. This process takes a long time (30min+). If you try to install this directly from Plugin Manager without installing these dependencies first, the compile process will take long enough that OctoPrint errors out the plugin install and quits responding **while the install process continues in the background!** You can monitor the process with **top** command via SSH, and when it finishes attempt the plugin install again per the above. It will detect that the plugin is already installed and force a reinstall, and since the dependencies will be there it will go on without issues.
+This plugin uses **matplotlib** and **numpy** packages from pip. Since wheels do not exist for these ARM packages in Python 3, they will need to compile. This process takes a long time (30min+). If you try to install this directly from Plugin Manager without installing these dependencies first, the compile process will take long enough that OctoPrint errors out the plugin install and quits responding **while the install process continues in the background!** You can monitor the process with **top** command via SSH, and when it finishes attempt the plugin install again per the above. It will detect that the plugin is already installed and force a reinstall, and since the dependencies will be there it will go on without issues.
 
 A better method may be to log in to the Pi via SSH before doing the plugin install and ``pip install`` the requirements manually. 
 
-**IMPORTANT!** As of this writing, the current versions of **matplotlib** and **numpy** require Python3. Python3 is not (again, as of this writing) part of the OctoPrint package. In order to support the older Python 2.7 that is provided with OctoPrint, you will need to specify the older versions of **matplotlib** and **numpy** when doing ``pip install`` using the following commands:
+**IMPORTANT!** As of this writing, the current versions of **matplotlib** and **numpy** require Python3.  This plugin has been updated toi support Python 34 ONLY, and it shoudl work with the latest versions of matplotlib and numpy. So to install these manually you can use the following commands:
 ```
-/home/pi/oprint/bin/pip --no-cache-dir install 'numpy<1.17'
-/home/pi/oprint/bin/pip --no-cache-dir install 'matplotlib<3.0'
+/home/pi/oprint/bin/pip --no-cache-dir install 'numpy'
+/home/pi/oprint/bin/pip --no-cache-dir install 'matplotlib'
 ```
 (The ``--no-cache-dir`` is required for Pi Zero W users, may work fine without this on other Pi versions)
 
