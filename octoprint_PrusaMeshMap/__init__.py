@@ -312,17 +312,17 @@ Recv:   0.14083  0.13222  0.12750  0.12667  0.12972  0.13667  0.14750
             plt.text(0.5, 0.43, "Total Bed Variance: " + str(bed_variance) + " (mm)", fontsize=10, horizontalalignment='center', verticalalignment='center', transform=ax.transAxes, bbox=dict(facecolor='#eeefff', alpha=0.5))
 
             # Display the adjustments below the graph
-            plt.figtext(0.1, 0.03, adjustments[0][0], fontWeight="semibold") 
+            plt.figtext(0.1, 0.03, adjustments[0][0], fontweight="semibold") 
             plt.figtext(0.1, -0.03, adjustments[0][1]) 
             plt.figtext(0.15, -0.03, adjustments[0][2]) 
             plt.figtext(0.20, -0.03, adjustments[0][3]) 
 
-            plt.figtext(0.32, 0.03, adjustments[1][0], fontWeight="semibold") 
+            plt.figtext(0.32, 0.03, adjustments[1][0], fontweight="semibold") 
             plt.figtext(0.32, -0.03, adjustments[1][1]) 
             plt.figtext(0.44, -0.03, adjustments[1][2]) 
             plt.figtext(0.56, -0.03, adjustments[1][3]) 
             
-            plt.figtext(0.7, 0.03, adjustments[2][0], fontWeight="semibold") 
+            plt.figtext(0.7, 0.03, adjustments[2][0], fontweight="semibold") 
             plt.figtext(0.7, -0.03, adjustments[2][1]) 
             plt.figtext(0.78, -0.03, adjustments[2][2]) 
             plt.figtext(0.86, -0.03, adjustments[2][3]) 
